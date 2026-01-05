@@ -214,6 +214,12 @@
   
 /* === iPhone Feintuning (nur Darstellung, Desktop bleibt unverändert) === */
 @media (max-width: 480px) {
+  /* iPhone: Auswertung-Controls deutlich größer */
+  #eval label { font-size: 15px; }
+  #eval select, #eval input { font-size: 16px; padding: 10px 12px; }
+  /* kleine Texte global +10% */
+  .muted, .small, .sub, .meta, .pill, .badge { font-size: 110%; }
+
   header h1 { font-size: 18px; letter-spacing: 0.2px; }
   header .toolbar { gap: 6px; }
   header .toolbar button {
@@ -256,6 +262,86 @@
   .filters > div:nth-child(4) { grid-column: 1 / -1; }
 }
 
+
+/* === iPhone Feintuning v2 (Layout/Typo/Charts) === */
+@media (max-width: 480px) {
+  /* Gesamte Typo leicht größer (+10%) */
+  body { font-size: 110%; }
+
+  /* Header: volle Breite + saubere 2-Zeilen-Buttons */
+  header { padding: 14px 14px; }
+  header .row { width: 100%; }
+  header .toolbar { display: grid !important; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  header .toolbar button { white-space: nowrap; }
+  #btnExportJson { display:none !important; }
+
+  /* Subtoolbar: zwei Buttons */
+  header .subtoolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+
+  /* Inhalte dürfen nicht breiter als Viewport werden (Header wirkt sonst "schmal") */
+  body { overflow-x: hidden; }
+  .wrap { overflow-x: hidden; }
+  canvas { max-width: 100%; }
+
+  /* Auswertung: Auswahlfelder/Labels deutlich größer (zusätzlich zu +10%) */
+  #eval .sub, #eval label, #eval select, #eval input {
+    font-size: 1.05em;
+  }
+  #eval select, #eval input { padding: 10px 12px; }
+
+  /* KPI-Boxen: Werte nicht schrumpfen lassen */
+  #kpis .v { font-size: 1.15em; }
+}
+
+
+/* === iPhone Feintuning v3: 3 Buttons oben + Zurück + größere Texte === */
+@media (max-width: 480px) {
+  /* Gesamtschrift etwas größer (kleine Texte +10%) */
+  body { font-size: 110%; }
+
+  /* Header soll exakt so breit wirken wie Content */
+  header { width: 100%; padding-left: 12px; padding-right: 12px; }
+  header .row, header .subtoolbar { width: 100% !important; max-width: none !important; }
+
+  /* Obere Reihe: 3 Buttons in einer Zeile */
+  header .toolbar { 
+    display: grid !important; 
+    grid-template-columns: 1fr 1fr 1fr !important; 
+    gap: 8px !important; 
+    align-items: stretch;
+  }
+  #btnNew { grid-column: 1 / 2 !important; }
+  #btnExportXlsx { grid-column: 2 / 3 !important; }
+  #btnDeleteAll { grid-column: 3 / 4 !important; }
+
+  /* JSON weiterhin ausblenden */
+  #btnExportJson { display:none !important; }
+
+  /* kurze Labels auf iPhone nutzen */
+  .label-short { display: inline; }
+  .label-long { display: none; }
+
+  /* zweite Zeile: Auswertung + Zurück */
+  header .subtoolbar { 
+    display: grid !important; 
+    grid-template-columns: 1fr 1fr !important; 
+    gap: 8px !important; 
+    margin-top: 8px !important;
+  }
+
+  /* Auswertung-Filter: deutlich größere Labels/Controls (zusätzlich zu +10%) */
+  #eval label { font-size: 16px !important; }
+  #eval select, #eval input, #eval button { font-size: 16px !important; }
+  #eval select, #eval input { padding: 10px 12px !important; }
+
+  /* Achsenlabels: etwas größer (Canvas wird via JS gerendert, Font-Scaler dort) */
+}
+
+
+/* Label-Varianten: Desktop = lang, iPhone überschreibt */
+.label-short { display: none; }
+.label-long { display: inline; }
+
 </style>
 </head>
 
@@ -265,16 +351,16 @@
     <h1>Run &amp; Ride</h1>
     <div class="toolbar">
       <button class="primary" id="btnNew">+ Neuer Eintrag</button>
-      <button id="btnExportXlsx">Export (Excel)</button>
+      <button id="btnExportXlsx">Export</button>
       <button id="btnExportJson">Export (JSON)</button>
-      <button class="danger" id="btnDeleteAll">Alle löschen</button>
+      <button class="danger" id="btnDeleteAll"><span class="label-long">Alle löschen</span><span class="label-short">Clear all</span></button>
     </div>
   </div>
 
   <!-- iPhone: zweite, ruhige Navigationszeile -->
   <div class="subtoolbar" aria-label="Schnellnavigation">
     <button id="btnJumpEval" title="Zum Auswertungsbereich springen">📊 Auswertung</button>
-    <button id="btnTop" title="Nach oben">⬆︎ Oben</button>
+    <button id="btnTop" title="Zurück nach oben"><span class="label-long">⬆︎ Oben</span><span class="label-short">↩︎ Zurück</span></button>
   </div>
 </header>
 
@@ -354,6 +440,7 @@
     <aside class="card" id="eval">
       <h2>Auswertung</h2>
 
+      
       <div class="row" style="margin-bottom:10px">
         <div style="min-width:220px; flex:1">
           <label for="evalScope">Auswertung für</label>
@@ -367,33 +454,23 @@
         </div>
 
         <div style="min-width:220px; flex:1">
-          <label for="evalMode">Zeitraum-Modus</label>
-          <select id="evalMode">
-            <option value="WEEKS" selected="">Letzte X Wochen</option>
-            <option value="UNITS">Letzte N Einheiten</option>
-          </select>
-        </div>
-
-        <div style="min-width:220px; flex:1">
-          <label for="evalRangeWeeks">Wochen</label>
-          <select id="evalRangeWeeks">
-            <option value="4">4</option>
-            <option value="8">8</option>
-            <option value="12">12</option>
-            <option value="16">16</option>
-            <option value="20">20</option>
-            <option value="24">24</option>
+          <label for="evalRange">Zeitraum</label>
+          <select id="evalRange">
+            <option value="1">1 Monat</option>
+            <option value="2">2 Monate</option>
+            <option value="3">3 Monate</option>
+            <option value="4" selected>4 Monate</option>
+            <option value="5">5 Monate</option>
+            <option value="6">6 Monate</option>
+            <option value="8">8 Monate</option>
+            <option value="10">10 Monate</option>
+            <option value="12">12 Monate</option>
             <option value="ALL">Ganzer Zeitraum</option>
           </select>
         </div>
-
-        <div style="min-width:220px; flex:1">
-          <label for="evalUnits">Einheiten (manuell)</label>
-          <input id="evalUnits" type="number" min="1" step="1" value="30" disabled="">
-        </div>
       </div>
 
-      <div class="kpi" id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitraum)</div></div><div class="box"><div class="v">0</div><div class="k">Minuten gesamt</div></div><div class="box"><div class="v">0</div><div class="k">GA1 Min</div></div><div class="box"><div class="v">0 (0%)</div><div class="k">GA2 Min (GA2%)</div></div><div class="box"><div class="v">0.0</div><div class="k">Kilometer gesamt</div></div><div class="box"><div class="v">0</div><div class="k">Höhenmeter gesamt</div></div></div>
+<div class="kpi" id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitraum)</div></div><div class="box"><div class="v">0</div><div class="k">Minuten gesamt</div></div><div class="box"><div class="v">0</div><div class="k">GA1 Min</div></div><div class="box"><div class="v">0 (0%)</div><div class="k">GA2 Min (GA2%)</div></div><div class="box"><div class="v">0.0</div><div class="k">Kilometer gesamt</div></div><div class="box"><div class="v">0</div><div class="k">Höhenmeter gesamt</div></div></div>
 
       <div class="sectionTitle">
         <span class="badge">Wochen: GA1 unten, GA2 oben · bei „Alle Sportarten“: Lauf+Bike übereinander</span>
@@ -1433,9 +1510,9 @@
     const kpis=$("#kpis"); kpis.innerHTML="";
     const boxes=[
       {k:"Einheiten (Zeitraum)",v:String(units)},
-      {k:"Minuten gesamt",v:String(Math.round(min))},
-      {k:"GA1 Min",v:String(Math.round(ga1))},
-      {k:"GA2 Min (GA2%)",v:`${Math.round(ga2)} (${Math.round(ga2Percent(ga1,ga2))}%)`},
+      {k:"Minuten gesamt",v:fmtMinHM(Math.round(min))},
+      {k:"GA1 Min",v:fmtMinHM(Math.round(ga1))},
+      {k:"GA2 Min (GA2%)",v:`${fmtMinHM(Math.round(ga2))} (${Math.round(ga2Percent(ga1,ga2))}%)`},
       {k:"Kilometer gesamt",v:round(km,1).toFixed(1)},
       {k:"Höhenmeter gesamt",v:String(Math.round(hm))}
     ];
@@ -1597,9 +1674,11 @@
     for(let i=0;i<series.length;i++){
       ctx.fillText(keyLabelFn.label(keys[i]), pad+i*groupW+groupW/2, pad+innerH+4);
     }
-    ctx.textAlign="right";
+    ctx.textAlign="left";
     ctx.textBaseline="top";
-    ctx.fillText(`${Math.round(maxVal)} min`, pad-8, pad);
+    ctx.fillText(`${fmtMinHM(Math.round(maxVal))}`, pad+6, pad);
+    ctx.textBaseline="bottom";
+    ctx.fillText(`${fmtMinHM(0)}`, pad+6, pad+innerH);
   }
 
   function buildWeekKeysFromAllowed(scope, allowed){
@@ -1733,8 +1812,10 @@
       const d = items[i].date.slice(5); // MM-DD
       ctx.fillText(d, xAt(i), baseY+4);
     }
-    ctx.textAlign="right"; ctx.textBaseline="top";
-    ctx.fillText(`${maxVal.toFixed(1)} km/h`, pad-8, pad);
+    ctx.textAlign="left"; ctx.textBaseline="top";
+    ctx.fillText(`${maxVal.toFixed(1)} km/h`, pad+6, pad);
+    ctx.textBaseline="bottom";
+    ctx.fillText(`${minV.toFixed(1)} km/h`, pad+6, baseY);
   }
 
   function buildTempoAndIV(scope, allowed){
@@ -1945,10 +2026,10 @@
     }
 
     // y-label (best time at top)
-    ctx.textAlign="right"; ctx.textBaseline="top";
-    ctx.fillText(`${fmtMMSSFromSeconds(minV)}`, pad-8, pad);
+    ctx.textAlign="left"; ctx.textBaseline="top";
+    ctx.fillText(`${fmtMMSSFromSeconds(minV)}`, pad+6, pad);
     ctx.textBaseline="bottom";
-    ctx.fillText(`${fmtMMSSFromSeconds(maxVal)}`, pad-8, baseY);
+    ctx.fillText(`${fmtMMSSFromSeconds(maxVal)}`, pad+6, baseY);
   }
   function renderCharts(){
     const scope = evalScopeEl.value;
@@ -2490,6 +2571,30 @@
     btn.addEventListener("click", () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
+  })();
+
+
+
+  // iPhone UX: Auswertung merken & Zurück springen
+  (function(){
+    let lastScrollY = 0;
+    const btnEval = document.getElementById("btnJumpEval");
+    const btnBack = document.getElementById("btnTop");
+    const evalEl = document.getElementById("eval");
+
+    if (btnEval) {
+      btnEval.addEventListener("click", () => {
+        lastScrollY = window.scrollY || 0;
+        if (evalEl && evalEl.scrollIntoView) evalEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, { passive: true });
+    }
+
+    if (btnBack) {
+      btnBack.addEventListener("click", () => {
+        const y = (typeof lastScrollY === "number" && lastScrollY > 0) ? lastScrollY : 0;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }, { passive: true });
+    }
   })();
 
 </script>

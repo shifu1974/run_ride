@@ -224,21 +224,6 @@
   }
   /* JSON-Export auf iPhone ausblenden */
   #btnExportJson { display: none !important; }
-  /* iPhone: obere Aktionsleiste kompakt in 3 Spalten (Neuer Eintrag · Export · Clear all) */
-  .toolbar{
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    align-items: center;
-  }
-  .toolbar .btn{
-    width: 100%;
-    justify-content: center;
-    padding: 10px 10px;
-    font-size: 14px;
-    white-space: nowrap;
-  }
-
   /* Kleine Erläutertexte auf iPhone ausblenden (Desktop behält sie) */
   .muted.small, .helptext, .hint, .tinyNote { display: none !important; }
   /* Sprung-Button zur Auswertung (auf iPhone sichtbar) */
@@ -249,10 +234,10 @@
 /* === iPhone Feintuning v2: Toolbar 2-zeilig + Filterlayout + Sticky ok === */
 @media (max-width: 480px) {
   /* oben: nur 3 Hauptbuttons sichtbar (JSON bleibt versteckt) */
-  header .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  header .toolbar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
   #btnNew { grid-column: 1 / 2; }
   #btnExportXlsx { grid-column: 2 / 3; }
-  #btnDeleteAll { grid-column: 1 / -1; }
+  #btnDeleteAll { grid-column: 3 / 4; }
   /* JSON auf iPhone aus (zusätzlich, falls nicht schon gesetzt) */
   #btnExportJson { display:none !important; }
 
@@ -280,7 +265,7 @@
     <h1>Run &amp; Ride</h1>
     <div class="toolbar">
       <button class="primary" id="btnNew">+ Neuer Eintrag</button>
-      <button id="btnExportXlsx">Export (Excel)</button>
+      <button id="btnExportXlsx">Export</button>
       <button id="btnExportJson">Export (JSON)</button>
       <button class="danger" id="btnDeleteAll">Alle löschen</button>
     </div>
@@ -668,6 +653,19 @@
     for (const c of children) n.appendChild(c);
     return n;
   };
+
+  // iPhone: kompakte Button-Beschriftungen (nur UI, keine Logikänderung)
+  const LABELS = {
+    deleteDesktop: "Alle löschen",
+    deleteMobile: "Clear"
+  };
+  function applyMobileLabels(){
+    const isPhone = window.matchMedia && window.matchMedia("(max-width: 480px)").matches;
+    const btnDel = $("#btnDeleteAll");
+    if (btnDel) btnDel.textContent = isPhone ? LABELS.deleteMobile : LABELS.deleteDesktop;
+  }
+  applyMobileLabels();
+  window.addEventListener("resize", applyMobileLabels);
 
   function round(x, d=0) { const p = 10**d; return Math.round(x*p)/p; }
   function num(v) { if (v == null || v === "") return null; const n = Number(v); return isFinite(n) ? n : null; }
@@ -2465,8 +2463,8 @@
       fileXlsx.value="";
     }catch(e){
       console.error(e);
-      importMsg.textContent=".";
-      alert(": " + (e?.message || String(e)));
+      importMsg.textContent="Import fehlgeschlagen.";
+      alert("Import fehlgeschlagen: " + (e?.message || String(e)));
     }finally{
       btnImport.disabled=false;
     }
@@ -2507,61 +2505,7 @@
     });
   })();
 
-
-
-  // Sync new month presets -> legacy weeks selector (keeps existing eval logic stable)
-  (function(){
-    const range = document.getElementById("evalRange");
-    const mode = document.getElementById("evalMode");
-    const weeks = document.getElementById("evalRangeWeeks");
-    if (!range || !weeks) return;
-
-    const monthsToWeeks = (m) => {
-      // rough but consistent: 1 month ~= 4.345 weeks
-      const w = Math.max(1, Math.round(Number(m) * 4.345));
-      // clamp to available options if possible
-      const opts = Array.from(weeks.options).map(o => Number(o.value)).filter(n => !Number.isNaN(n));
-      if (!opts.length) return String(w);
-      // choose nearest option
-      let best = opts[0], bestD = Math.abs(opts[0]-w);
-      for (const o of opts) {
-        const d = Math.abs(o-w);
-        if (d < bestD) { best=o; bestD=d; }
-      }
-      return String(best);
-    };
-
-    const apply = () => {
-      if (mode) mode.value = "WEEKS";
-      if (range.value === "ALL") {
-        weeks.value = "520";
-      } else {
-        weeks.value = monthsToWeeks(range.value);
-      }
-      // trigger eval refresh (renderAll exists in app)
-      if (typeof renderAll === "function") renderAll();
-    };
-
-    range.addEventListener("change", apply);
-    // initial sync on load
-    apply();
-  })();
-
 </script>
 
 
-
-<script>
-(function(){
-  const isPhone = window.matchMedia && window.matchMedia("(max-width: 480px)").matches;
-  if(!isPhone) return;
-  const btnExport = document.getElementById("btnExportXlsx");
-  const btnDelete = document.getElementById("btnDeleteAll");
-  const btnTop = document.getElementById("btnTop");
-  // Beschriftungen kompakter fürs iPhone
-  if(btnExport) btnExport.textContent = "Export";
-  if(btnDelete) btnDelete.textContent = "Clear all";
-  if(btnTop) btnTop.textContent = "↩ Zurück";
-})();
-</script>
 </body></html>

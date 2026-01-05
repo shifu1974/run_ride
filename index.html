@@ -212,56 +212,48 @@
       margin:10px 0 6px;
     }
   
-/* Label-Varianten: Desktop = lang, iPhone überschreibt */
-.label-short { display: none; }
-.label-long { display: inline; }
-
-
-/* === iPhone Feintuning (Option A, nur Darstellung) === */
+/* === iPhone Feintuning (nur Darstellung, Desktop bleibt unverändert) === */
 @media (max-width: 480px) {
-  /* Gesamt etwas größer (Netzhaut) */
-  body { font-size: 110%; }
-
-  /* Header bündig wie Content */
-  header { width: 100%; padding-left: 12px; padding-right: 12px; }
-
-  /* Obere Reihe: 3 Buttons */
-  header .toolbar {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr 1fr !important;
-    gap: 8px !important;
-    align-items: stretch;
-  }
-  #btnExportJson { display: none !important; } /* JSON auf iPhone weg */
-
-  /* kurze Labels auf iPhone */
-  .label-short { display: inline; }
-  .label-long { display: none; }
-
-  /* zweite Reihe: Auswertung + Zurück */
-  header .subtoolbar {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important;
-    margin-top: 8px !important;
-    width: 100%;
-  }
-
-  /* Buttons leichter/kleiner */
-  header .toolbar button, header .subtoolbar button {
+  header h1 { font-size: 18px; letter-spacing: 0.2px; }
+  header .toolbar { gap: 6px; }
+  header .toolbar button {
     font-size: 13px;
     padding: 6px 10px;
     border-radius: 10px;
     font-weight: 600;
   }
-
-  /* Erklär-Kleinsttexte auf iPhone ausblenden (Desktop behält sie) */
+  /* JSON-Export auf iPhone ausblenden */
+  #btnExportJson { display: none !important; }
+  /* Kleine Erläutertexte auf iPhone ausblenden (Desktop behält sie) */
   .muted.small, .helptext, .hint, .tinyNote { display: none !important; }
+  /* Sprung-Button zur Auswertung (auf iPhone sichtbar) */
+  #btnJumpEval { display: inline-flex !important; }
+}
 
-  /* Auswertung: Controls deutlich größer */
-  #eval label { font-size: 16px !important; }
-  #eval select, #eval input, #eval button { font-size: 16px !important; }
-  #eval select, #eval input { padding: 10px 12px !important; }
+
+/* === iPhone Feintuning v2: Toolbar 2-zeilig + Filterlayout + Sticky ok === */
+@media (max-width: 480px) {
+  /* oben: nur 3 Hauptbuttons sichtbar (JSON bleibt versteckt) */
+  header .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  #btnNew { grid-column: 1 / 2; }
+  #btnExportXlsx { grid-column: 2 / 3; }
+  #btnDeleteAll { grid-column: 1 / -1; }
+  /* JSON auf iPhone aus (zusätzlich, falls nicht schon gesetzt) */
+  #btnExportJson { display:none !important; }
+
+  /* zweite Zeile: Auswertung/Oben */
+  header .subtoolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  header .subtoolbar button {
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-weight: 650;
+  }
+
+  /* Filter: Sport + Trainingsart nebeneinander; darunter Suche + Zeitraum */
+  .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .filters > div:nth-child(3),
+  .filters > div:nth-child(4) { grid-column: 1 / -1; }
 }
 
 </style>
@@ -273,12 +265,16 @@
     <h1>Run &amp; Ride</h1>
     <div class="toolbar">
       <button class="primary" id="btnNew">+ Neuer Eintrag</button>
-      <button id="btnExportXlsx"><span class="label-long">Export (Excel)</span><span class="label-short">Export</span></button>
+      <button id="btnExportXlsx">Export (Excel)</button>
       <button id="btnExportJson">Export (JSON)</button>
-      <button id="btnJumpEval" title="Zum Auswertungsbereich springen">📊 Auswertung</button>
-      <button id="btnTop" title="Zur letzten Position zurück">↩︎ Zurück</button>
-      <button class="danger" id="btnDeleteAll"><span class="label-long">Alle löschen</span><span class="label-short">Clear all</span></button>
+      <button class="danger" id="btnDeleteAll">Alle löschen</button>
     </div>
+  </div>
+
+  <!-- iPhone: zweite, ruhige Navigationszeile -->
+  <div class="subtoolbar" aria-label="Schnellnavigation">
+    <button id="btnJumpEval" title="Zum Auswertungsbereich springen">📊 Auswertung</button>
+    <button id="btnTop" title="Nach oben">⬆︎ Oben</button>
   </div>
 </header>
 
@@ -314,7 +310,22 @@
         </div>
         <div>
           <label for="searchText">Suche (Name/Notizen/Partner)</label>
-          <input id="searchText" placeholder="z.B. &#39;Park&#39;, &#39;Jan&#39; …">
+          <input id="searchText" placeholder="z.B. 'Park', 'Jan' …">
+        </div>
+        <div>
+          <label for="filterRange">Zeitraum</label>
+          <select id="filterRange">
+            <option value="">Ganzer Zeitraum</option>
+            <option value="1">1 Monat</option>
+            <option value="2">2 Monate</option>
+            <option value="3">3 Monate</option>
+            <option value="4">4 Monate</option>
+            <option value="5">5 Monate</option>
+            <option value="6">6 Monate</option>
+            <option value="8">8 Monate</option>
+            <option value="10">10 Monate</option>
+            <option value="12">12 Monate</option>
+          </select>
         </div>
       </div>
 
@@ -343,7 +354,6 @@
     <aside class="card" id="eval">
       <h2>Auswertung</h2>
 
-      
       <div class="row" style="margin-bottom:10px">
         <div style="min-width:220px; flex:1">
           <label for="evalScope">Auswertung für</label>
@@ -357,23 +367,33 @@
         </div>
 
         <div style="min-width:220px; flex:1">
-          <label for="evalRange">Zeitraum</label>
-          <select id="evalRange">
-            <option value="1">1 Monat</option>
-            <option value="2">2 Monate</option>
-            <option value="3">3 Monate</option>
-            <option value="4" selected>4 Monate</option>
-            <option value="5">5 Monate</option>
-            <option value="6">6 Monate</option>
-            <option value="8">8 Monate</option>
-            <option value="10">10 Monate</option>
-            <option value="12">12 Monate</option>
+          <label for="evalMode">Zeitraum-Modus</label>
+          <select id="evalMode">
+            <option value="WEEKS" selected="">Letzte X Wochen</option>
+            <option value="UNITS">Letzte N Einheiten</option>
+          </select>
+        </div>
+
+        <div style="min-width:220px; flex:1">
+          <label for="evalRangeWeeks">Wochen</label>
+          <select id="evalRangeWeeks">
+            <option value="4">4</option>
+            <option value="8">8</option>
+            <option value="12">12</option>
+            <option value="16">16</option>
+            <option value="20">20</option>
+            <option value="24">24</option>
             <option value="ALL">Ganzer Zeitraum</option>
           </select>
         </div>
+
+        <div style="min-width:220px; flex:1">
+          <label for="evalUnits">Einheiten (manuell)</label>
+          <input id="evalUnits" type="number" min="1" step="1" value="30" disabled="">
+        </div>
       </div>
 
-id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitraum)</div></div><div class="box"><div class="v">0</div><div class="k">Minuten gesamt</div></div><div class="box"><div class="v">0</div><div class="k">GA1 Min</div></div><div class="box"><div class="v">0 (0%)</div><div class="k">GA2 Min (GA2%)</div></div><div class="box"><div class="v">0.0</div><div class="k">Kilometer gesamt</div></div><div class="box"><div class="v">0</div><div class="k">Höhenmeter gesamt</div></div></div>
+      <div class="kpi" id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitraum)</div></div><div class="box"><div class="v">0</div><div class="k">Minuten gesamt</div></div><div class="box"><div class="v">0</div><div class="k">GA1 Min</div></div><div class="box"><div class="v">0 (0%)</div><div class="k">GA2 Min (GA2%)</div></div><div class="box"><div class="v">0.0</div><div class="k">Kilometer gesamt</div></div><div class="box"><div class="v">0</div><div class="k">Höhenmeter gesamt</div></div></div>
 
       <div class="sectionTitle">
         <span class="badge">Wochen: GA1 unten, GA2 oben · bei „Alle Sportarten“: Lauf+Bike übereinander</span>
@@ -834,17 +854,43 @@ id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitr
   const filterSportEl = $("#filterSport");
   const filterTypeEl = $("#filterType");
   const searchTextEl = $("#searchText");
+  const filterRangeEl = $("#filterRange");
 
-  function resetFiltersToAll() { filterSportEl.value=""; filterTypeEl.value=""; }
+  function resetFiltersToAll() { filterSportEl.value=""; filterTypeEl.value=""; if (filterRangeEl) filterRangeEl.value=""; }
 
   function getFiltered() {
     const fs = filterSportEl.value;
     const ft = filterTypeEl.value;
     const q = searchTextEl.value.trim().toLowerCase();
+    const rangeMonths = filterRangeEl ? (filterRangeEl.value || "") : "";
+    function isoToday() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      return `${y}-${m}-${dd}`;
+    }
+    function monthsBackISO(months) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - months);
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      return `${y}-${m}-${dd}`;
+    }
+
 
     let arr = state.entries.slice();
     if (fs) arr = arr.filter(e => e.sport === fs);
     if (ft) arr = arr.filter(e => (e.type || "") === ft);
+
+    if (rangeMonths) {
+      const months = parseInt(rangeMonths, 10);
+      if (!isNaN(months) && months > 0) {
+        const cutoff = monthsBackISO(months);
+        arr = arr.filter(e => isISODate(e.date||"") && (e.date >= cutoff));
+      }
+    }
 
     if (q) {
       arr = arr.filter(e => ([e.name,e.notes,e.partner,e.surface,e.sport,e.type].join(" ").toLowerCase()).includes(q));
@@ -1687,14 +1733,8 @@ id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitr
       const d = items[i].date.slice(5); // MM-DD
       ctx.fillText(d, xAt(i), baseY+4);
     }
-    ctx.textAlign="left"; ctx.textBaseline="middle";
-    const ticks = [0, maxVal];
-    const mid = maxVal/2;
-    if (mid > 0 && mid < maxVal) ticks.splice(1,0,mid);
-    for (const t of ticks) {
-      const y = pad + innerH - (t/maxVal)*innerH;
-      ctx.fillText(`${(+t).toFixed(1)} km/h`, pad+8, y);
-    }
+    ctx.textAlign="right"; ctx.textBaseline="top";
+    ctx.fillText(`${maxVal.toFixed(1)} km/h`, pad-8, pad);
   }
 
   function buildTempoAndIV(scope, allowed){
@@ -1778,17 +1818,7 @@ id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitr
     const s = Math.round(sec);
     const mm = Math.floor(s/60);
     const ss = s%60;
-    return `${mm}
-
-  function fmtMinHM(mins){
-    const m = Math.round(Number(mins) || 0);
-    if (m < 60) return `${m} min`;
-    const h = Math.floor(m/60);
-    const mm = String(m%60).padStart(2,'0');
-    return `${h}:${mm} h`;
-  }
-
-:${String(ss).padStart(2,"0")}`;
+    return `${mm}:${String(ss).padStart(2,"0")}`;
   }
 
   function build10kTrend(scope, allowed){
@@ -1915,13 +1945,10 @@ id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitr
     }
 
     // y-label (best time at top)
-    ctx.textAlign="left"; ctx.textBaseline="top";
-    ctx.fillText(`${fmtMMSSFromSeconds(minV)}`, pad+8, pad);
-    const midV = Math.round((minV + maxVal)/2);
-    ctx.textBaseline="middle";
-    ctx.fillText(`${fmtMMSSFromSeconds(midV)}`, pad+8, (pad+baseY)/2);
+    ctx.textAlign="right"; ctx.textBaseline="top";
+    ctx.fillText(`${fmtMMSSFromSeconds(minV)}`, pad-8, pad);
     ctx.textBaseline="bottom";
-    ctx.fillText(`${fmtMMSSFromSeconds(maxVal)}`, pad+8, baseY);
+    ctx.fillText(`${fmtMMSSFromSeconds(maxVal)}`, pad-8, baseY);
   }
   function renderCharts(){
     const scope = evalScopeEl.value;
@@ -2333,6 +2360,7 @@ id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitr
 
   filterSportEl.addEventListener("change", renderList);
   filterTypeEl.addEventListener("change", renderList);
+  if (filterRangeEl) filterRangeEl.addEventListener("change", renderList);
   searchTextEl.addEventListener("input", () => {
     clearTimeout(searchTextEl._t);
     searchTextEl._t = setTimeout(renderList, 120);
@@ -2422,8 +2450,8 @@ id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitr
       fileXlsx.value="";
     }catch(e){
       console.error(e);
-      importMsg.textContent="";
-      alert("Import fehlgeschlagen: " + (e?.message || String(e)));
+      importMsg.textContent=".";
+      alert(": " + (e?.message || String(e)));
     }finally{
       btnImport.disabled=false;
     }
@@ -2444,44 +2472,64 @@ id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitr
 
 })();
 
-
-  // iPhone UX: Auswertung merken & Zurück springen (und Monats-Zeitraum)
+  // iPhone UX: Jump to evaluation section
   (function(){
-    let lastScrollY = 0;
-    const btnEval = document.getElementById("btnJumpEval");
-    const btnBack = document.getElementById("btnTop");
-    const evalEl = document.getElementById("eval");
-    const evalRange = document.getElementById("evalRange");
-    const evalScope = document.getElementById("evalScope");
+    const btn = document.getElementById("btnJumpEval");
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      const el = document.getElementById("eval");
+      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  })();
 
-    if (btnEval) {
-      btnEval.addEventListener("click", () => {
-        lastScrollY = window.scrollY || 0;
-        if (evalEl && evalEl.scrollIntoView) evalEl.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, { passive: true });
-    }
-    if (btnBack) {
-      btnBack.addEventListener("click", () => {
-        const y = (typeof lastScrollY === "number" && lastScrollY > 0) ? lastScrollY : 0;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }, { passive: true });
-    }
 
-    // Hook into updateEval() if it exists: override range selection to months presets
-    if (typeof window.updateEval === "function") {
-      // patch: wrap original to inject fromDate months
-      const orig = window.updateEval;
-      window.updateEval = function(){
-        // Provide globals expected by original logic if any
-        return orig.apply(this, arguments);
-      };
-    }
+  // iPhone UX: back to top
+  (function(){
+    const btn = document.getElementById("btnTop");
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  })();
 
-    // If the app uses direct listeners, add ours defensively (updateEval expected globally)
-    if (typeof updateEval === "function") {
-      if (evalRange) evalRange.addEventListener("change", updateEval);
-      if (evalScope) evalScope.addEventListener("change", updateEval);
-    }
+
+
+  // Sync new month presets -> legacy weeks selector (keeps existing eval logic stable)
+  (function(){
+    const range = document.getElementById("evalRange");
+    const mode = document.getElementById("evalMode");
+    const weeks = document.getElementById("evalRangeWeeks");
+    if (!range || !weeks) return;
+
+    const monthsToWeeks = (m) => {
+      // rough but consistent: 1 month ~= 4.345 weeks
+      const w = Math.max(1, Math.round(Number(m) * 4.345));
+      // clamp to available options if possible
+      const opts = Array.from(weeks.options).map(o => Number(o.value)).filter(n => !Number.isNaN(n));
+      if (!opts.length) return String(w);
+      // choose nearest option
+      let best = opts[0], bestD = Math.abs(opts[0]-w);
+      for (const o of opts) {
+        const d = Math.abs(o-w);
+        if (d < bestD) { best=o; bestD=d; }
+      }
+      return String(best);
+    };
+
+    const apply = () => {
+      if (mode) mode.value = "WEEKS";
+      if (range.value === "ALL") {
+        weeks.value = "520";
+      } else {
+        weeks.value = monthsToWeeks(range.value);
+      }
+      // trigger eval refresh (renderAll exists in app)
+      if (typeof renderAll === "function") renderAll();
+    };
+
+    range.addEventListener("change", apply);
+    // initial sync on load
+    apply();
   })();
 
 </script>

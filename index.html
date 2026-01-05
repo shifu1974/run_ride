@@ -230,6 +230,32 @@
   #btnJumpEval { display: inline-flex !important; }
 }
 
+
+/* === iPhone Feintuning v2: Toolbar 2-zeilig + Filterlayout + Sticky ok === */
+@media (max-width: 480px) {
+  /* oben: nur 3 Hauptbuttons sichtbar (JSON bleibt versteckt) */
+  header .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  #btnNew { grid-column: 1 / 2; }
+  #btnExportXlsx { grid-column: 2 / 3; }
+  #btnDeleteAll { grid-column: 1 / -1; }
+  /* JSON auf iPhone aus (zusätzlich, falls nicht schon gesetzt) */
+  #btnExportJson { display:none !important; }
+
+  /* zweite Zeile: Auswertung/Oben */
+  header .subtoolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  header .subtoolbar button {
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-weight: 650;
+  }
+
+  /* Filter: Sport + Trainingsart nebeneinander; darunter Suche + Zeitraum */
+  .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .filters > div:nth-child(3),
+  .filters > div:nth-child(4) { grid-column: 1 / -1; }
+}
+
 </style>
 </head>
 
@@ -240,10 +266,15 @@
     <div class="toolbar">
       <button class="primary" id="btnNew">+ Neuer Eintrag</button>
       <button id="btnExportXlsx">Export (Excel)</button>
-      <button id="btnJumpEval" title="Zum Auswertungsbereich springen">📊 Auswertung</button>
       <button id="btnExportJson">Export (JSON)</button>
       <button class="danger" id="btnDeleteAll">Alle löschen</button>
     </div>
+  </div>
+
+  <!-- iPhone: zweite, ruhige Navigationszeile -->
+  <div class="subtoolbar" aria-label="Schnellnavigation">
+    <button id="btnJumpEval" title="Zum Auswertungsbereich springen">📊 Auswertung</button>
+    <button id="btnTop" title="Nach oben">⬆︎ Oben</button>
   </div>
 </header>
 
@@ -279,7 +310,22 @@
         </div>
         <div>
           <label for="searchText">Suche (Name/Notizen/Partner)</label>
-          <input id="searchText" placeholder="z.B. &#39;Park&#39;, &#39;Jan&#39; …">
+          <input id="searchText" placeholder="z.B. 'Park', 'Jan' …">
+        </div>
+        <div>
+          <label for="filterRange">Zeitraum</label>
+          <select id="filterRange">
+            <option value="">Ganzer Zeitraum</option>
+            <option value="1">1 Monat</option>
+            <option value="2">2 Monate</option>
+            <option value="3">3 Monate</option>
+            <option value="4">4 Monate</option>
+            <option value="5">5 Monate</option>
+            <option value="6">6 Monate</option>
+            <option value="8">8 Monate</option>
+            <option value="10">10 Monate</option>
+            <option value="12">12 Monate</option>
+          </select>
         </div>
       </div>
 
@@ -291,7 +337,7 @@
         <div class="fileRow">
           <input type="file" id="fileXlsx" accept=".xlsx">
           <button id="btnImport">Excel-Import</button>
-          <span class="muted" id="importMsg">Import fehlgeschlagen.</span>
+          <span class="muted" id="importMsg"></span>
         </div>
       </div>
 
@@ -808,17 +854,43 @@
   const filterSportEl = $("#filterSport");
   const filterTypeEl = $("#filterType");
   const searchTextEl = $("#searchText");
+  const filterRangeEl = $("#filterRange");
 
-  function resetFiltersToAll() { filterSportEl.value=""; filterTypeEl.value=""; }
+  function resetFiltersToAll() { filterSportEl.value=""; filterTypeEl.value=""; if (filterRangeEl) filterRangeEl.value=""; }
 
   function getFiltered() {
     const fs = filterSportEl.value;
     const ft = filterTypeEl.value;
     const q = searchTextEl.value.trim().toLowerCase();
+    const rangeMonths = filterRangeEl ? (filterRangeEl.value || "") : "";
+    function isoToday() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      return `${y}-${m}-${dd}`;
+    }
+    function monthsBackISO(months) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - months);
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      return `${y}-${m}-${dd}`;
+    }
+
 
     let arr = state.entries.slice();
     if (fs) arr = arr.filter(e => e.sport === fs);
     if (ft) arr = arr.filter(e => (e.type || "") === ft);
+
+    if (rangeMonths) {
+      const months = parseInt(rangeMonths, 10);
+      if (!isNaN(months) && months > 0) {
+        const cutoff = monthsBackISO(months);
+        arr = arr.filter(e => isISODate(e.date||"") && (e.date >= cutoff));
+      }
+    }
 
     if (q) {
       arr = arr.filter(e => ([e.name,e.notes,e.partner,e.surface,e.sport,e.type].join(" ").toLowerCase()).includes(q));
@@ -2288,6 +2360,7 @@
 
   filterSportEl.addEventListener("change", renderList);
   filterTypeEl.addEventListener("change", renderList);
+  if (filterRangeEl) filterRangeEl.addEventListener("change", renderList);
   searchTextEl.addEventListener("input", () => {
     clearTimeout(searchTextEl._t);
     searchTextEl._t = setTimeout(renderList, 120);
@@ -2406,6 +2479,16 @@
     btn.addEventListener("click", () => {
       const el = document.getElementById("eval");
       if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  })();
+
+
+  // iPhone UX: back to top
+  (function(){
+    const btn = document.getElementById("btnTop");
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
   })();
 

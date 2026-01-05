@@ -256,6 +256,36 @@
   .filters > div:nth-child(4) { grid-column: 1 / -1; }
 }
 
+
+/* --- iPhone fine tuning (freeze-safe) --- */
+.btn-export-short, .btn-clear-short { display:none; }
+@media (max-width: 520px){
+  body{ font-size:115%; }
+  header{ width:100%; }
+  .toolbar{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; align-items:stretch; }
+  #btnExportJson{ display:none !important; }
+  .btn-export-long{ display:none; }
+  .btn-export-short{ display:inline; }
+  .btn-clear-long{ display:none; }
+  .btn-clear-short{ display:inline; }
+  .toolbar button{ font-size:14px; padding:10px 10px; }
+  .subtoolbar{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px; }
+  .filters{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+  .filters > div:nth-child(3),
+  .filters > div:nth-child(4){ grid-column: 1 / -1; }
+  /* Auswertung: große Auswahlfelder */
+  #eval label{ font-size:1.05em; }
+  #eval select, #eval input{ font-size:1.1em; padding:12px 12px; }
+  /* hide legacy eval controls on iPhone */
+  #eval .evalUnitsWrap, #eval .evalRangeWeeksWrap{ display:none !important; }
+  /* show months selector */
+  #eval .evalRangeWrap{ display:block; }
+  /* Y-axis label clipping fix */
+  canvas{ max-width:100%; }
+}
+/* default (desktop): keep months selector hidden for now */
+#eval .evalRangeWrap{ display:none; }
+
 </style>
 </head>
 
@@ -265,16 +295,16 @@
     <h1>Run &amp; Ride</h1>
     <div class="toolbar">
       <button class="primary" id="btnNew">+ Neuer Eintrag</button>
-      <button id="btnExportXlsx">Export (Excel)</button>
+      <button id="btnExportXlsx"><span class="btn-export-long">Export (Excel)</span><span class="btn-export-short">Export</span></button>
       <button id="btnExportJson">Export (JSON)</button>
-      <button class="danger" id="btnDeleteAll">Alle löschen</button>
+      <button class="danger" id="btnDeleteAll"><span class="btn-clear-long">Alle löschen</span><span class="btn-clear-short">Clear all</span></button>
     </div>
   </div>
 
   <!-- iPhone: zweite, ruhige Navigationszeile -->
   <div class="subtoolbar" aria-label="Schnellnavigation">
     <button id="btnJumpEval" title="Zum Auswertungsbereich springen">📊 Auswertung</button>
-    <button id="btnTop" title="Nach oben">⬆︎ Oben</button>
+    <button id="btnTop" title="Nach oben">↩︎ Zurück</button>
   </div>
 </header>
 
@@ -370,9 +400,27 @@
           <label for="evalMode">Zeitraum-Modus</label>
           <select id="evalMode">
             <option value="WEEKS" selected="">Letzte X Wochen</option>
+          <option value="MONTHS">Letzte X Monate</option>
             <option value="UNITS">Letzte N Einheiten</option>
           </select>
         </div>
+
+        <div class="evalRangeWrap">
+          <label for="evalRange">Zeitraum</label>
+          <select id="evalRange">
+            <option value="1">1 Monat</option>
+            <option value="2">2 Monate</option>
+            <option value="3">3 Monate</option>
+            <option value="4" selected>4 Monate</option>
+            <option value="5">5 Monate</option>
+            <option value="6">6 Monate</option>
+            <option value="8">8 Monate</option>
+            <option value="10">10 Monate</option>
+            <option value="12">12 Monate</option>
+            <option value="ALL">Ganzer Zeitraum</option>
+          </select>
+        </div>
+
 
         <div style="min-width:220px; flex:1">
           <label for="evalRangeWeeks">Wochen</label>
@@ -1263,6 +1311,9 @@
   // -------- Auswertung / Zeitraum --------
   const evalScopeEl=$("#evalScope");
   const evalModeEl=$("#evalMode");
+  const evalRangeEl=$("#evalRange");
+  try{ if (window.matchMedia && window.matchMedia("(max-width: 520px)").matches){ evalModeEl.value="MONTHS"; if(evalRangeEl) evalRangeEl.value="4"; } }catch(e){}
+
   const evalRangeWeeksEl=$("#evalRangeWeeks");
   const evalUnitsEl=$("#evalUnits");
 
@@ -1331,6 +1382,27 @@
 
   function getAllowedEntriesByMode(scope){
     const mode = evalModeEl.value;
+  const rangeMonths = (evalRangeEl && evalRangeEl.value) ? evalRangeEl.value : "4";
+
+  if (mode === "MONTHS") {
+    const entries = state.entries.map(e => enrich({ ...e })).filter(e => isISODate(e.date) && matchScope(e, scope));
+    if (rangeMonths === "ALL") {
+      const ids = new Set(entries.map(e => e.id));
+      const weekSet = new Set(entries.map(e => dateToMondayISO(e.date)));
+      return { ids, weekSet };
+    }
+    const months = Math.max(1, parseInt(rangeMonths, 10) || 4);
+    const maxISO = entries.reduce((mx, e) => (e.date > mx ? e.date : mx), "0000-00-00");
+    const maxD = new Date(maxISO + "T00:00:00");
+    const cut = new Date(maxD);
+    cut.setMonth(cut.getMonth() - months);
+    const cutISO = cut.toISOString().slice(0,10);
+    const allowed = entries.filter(e => e.date >= cutISO);
+    const ids = new Set(allowed.map(e => e.id));
+    const weekSet = new Set(allowed.map(e => dateToMondayISO(e.date)));
+    return { ids, weekSet };
+  }
+
     const entries = state.entries
       .map(e => enrich({ ...e }))
       .filter(e => isISODate(e.date))
@@ -1376,7 +1448,17 @@
     return keys.map(k => ({ key:k, ...map.get(k) }));
   }
 
-  function renderTablesAndKPIs(){
+  
+  function formatMinutesHM(min, forAxis=false){
+    const m = Math.round(min||0);
+    if (m >= 60){
+      const h = Math.floor(m/60);
+      const mm = String(m%60).padStart(2,'0');
+      return forAxis ? `${h}:${mm}` : `${h}:${mm} h`;
+    }
+    return forAxis ? `${m}` : `${m} min`;
+  }
+function renderTablesAndKPIs(){
     const scope=evalScopeEl.value;
     const allowed = getAllowedEntriesByMode(scope);
 
@@ -2494,43 +2576,7 @@
 
 
 
-  // Sync new month presets -> legacy weeks selector (keeps existing eval logic stable)
-  (function(){
-    const range = document.getElementById("evalRange");
-    const mode = document.getElementById("evalMode");
-    const weeks = document.getElementById("evalRangeWeeks");
-    if (!range || !weeks) return;
-
-    const monthsToWeeks = (m) => {
-      // rough but consistent: 1 month ~= 4.345 weeks
-      const w = Math.max(1, Math.round(Number(m) * 4.345));
-      // clamp to available options if possible
-      const opts = Array.from(weeks.options).map(o => Number(o.value)).filter(n => !Number.isNaN(n));
-      if (!opts.length) return String(w);
-      // choose nearest option
-      let best = opts[0], bestD = Math.abs(opts[0]-w);
-      for (const o of opts) {
-        const d = Math.abs(o-w);
-        if (d < bestD) { best=o; bestD=d; }
-      }
-      return String(best);
-    };
-
-    const apply = () => {
-      if (mode) mode.value = "WEEKS";
-      if (range.value === "ALL") {
-        weeks.value = "520";
-      } else {
-        weeks.value = monthsToWeeks(range.value);
-      }
-      // trigger eval refresh (renderAll exists in app)
-      if (typeof renderAll === "function") renderAll();
-    };
-
-    range.addEventListener("change", apply);
-    // initial sync on load
-    apply();
-  })();
+  ;
 
 </script>
 

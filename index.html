@@ -265,7 +265,7 @@
     <h1>Run &amp; Ride</h1>
     <div class="toolbar">
       <button class="primary" id="btnNew">+ Neuer Eintrag</button>
-      <button id="btnExportXlsx">Export</button>
+      <button id="btnExportXlsx">Export (Excel)</button>
       <button id="btnExportJson">Export (JSON)</button>
       <button class="danger" id="btnDeleteAll">Alle löschen</button>
     </div>
@@ -653,19 +653,6 @@
     for (const c of children) n.appendChild(c);
     return n;
   };
-
-  // iPhone: kompakte Button-Beschriftungen (nur UI, keine Logikänderung)
-  const LABELS = {
-    deleteDesktop: "Alle löschen",
-    deleteMobile: "Clear"
-  };
-  function applyMobileLabels(){
-    const isPhone = window.matchMedia && window.matchMedia("(max-width: 480px)").matches;
-    const btnDel = $("#btnDeleteAll");
-    if (btnDel) btnDel.textContent = isPhone ? LABELS.deleteMobile : LABELS.deleteDesktop;
-  }
-  applyMobileLabels();
-  window.addEventListener("resize", applyMobileLabels);
 
   function round(x, d=0) { const p = 10**d; return Math.round(x*p)/p; }
   function num(v) { if (v == null || v === "") return null; const n = Number(v); return isFinite(n) ? n : null; }

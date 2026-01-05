@@ -212,49 +212,33 @@
       margin:10px 0 6px;
     }
   
-/* === iPhone Feintuning (nur Darstellung, Desktop bleibt unverändert) === */
-@media (max-width: 480px) {
-  header h1 { font-size: 18px; letter-spacing: 0.2px; }
-  header .toolbar { gap: 6px; }
-  header .toolbar button {
-    font-size: 13px;
-    padding: 6px 10px;
-    border-radius: 10px;
-    font-weight: 600;
-  }
-  /* JSON-Export auf iPhone ausblenden */
-  #btnExportJson { display: none !important; }
-  /* Kleine Erläutertexte auf iPhone ausblenden (Desktop behält sie) */
-  .muted.small, .helptext, .hint, .tinyNote { display: none !important; }
-  /* Sprung-Button zur Auswertung (auf iPhone sichtbar) */
-  #btnJumpEval { display: inline-flex !important; }
+/* === iPhone Master UI === */
+header { position: sticky; top: 0; z-index: 50; background: #fff; }
+header .row { display: flex; flex-direction: column; gap: 8px; }
+header .toolbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  width: 100%;
 }
-
-
-/* === iPhone Feintuning v2: Toolbar 2-zeilig + Filterlayout + Sticky ok === */
-@media (max-width: 480px) {
-  /* oben: 3 Hauptbuttons in einer Reihe (JSON bleibt versteckt) */
-  header .toolbar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-  #btnNew { grid-column: 1 / 2; }
-  #btnExportXlsx { grid-column: 2 / 3; }
-  #btnDeleteAll { grid-column: 3 / 4; }
-  /* JSON auf iPhone aus (zusätzlich, falls nicht schon gesetzt) */
-  #btnExportJson { display:none !important; }
-
-  /* zweite Zeile: Auswertung/Oben */
-  header .subtoolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-  header .subtoolbar button {
-    font-size: 13px;
-    padding: 6px 10px;
-    border-radius: 10px;
-    font-weight: 650;
-  }
-
-  /* Filter: Sport + Trainingsart nebeneinander; darunter Suche + Zeitraum */
-  .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .filters > div:nth-child(3),
-  .filters > div:nth-child(4) { grid-column: 1 / -1; }
+header .subtoolbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
 }
+header .toolbar button, header .subtoolbar button {
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+#eval label { font-size: 16px; }
+#eval select, #eval input { font-size: 16px; padding: 10px 12px; }
+/* Hide JSON export everywhere (iPhone master) */
+#btnExportJson { display:none !important; }
+/* Hide tiny hints (can revisit for desktop later) */
+.muted.small, .helptext, .hint, .tinyNote { display:none !important; }
 
 </style>
 </head>
@@ -265,16 +249,13 @@
     <h1>Run &amp; Ride</h1>
     <div class="toolbar">
       <button class="primary" id="btnNew">+ Neuer Eintrag</button>
-      <button id="btnExportXlsx"><span class="label-long">Export (Excel)</span><span class="label-short">Export</span></button>
-      <button id="btnExportJson" class="desktop-only">Export (JSON)</button>
-      <button class="danger" id="btnDeleteAll"><span class="label-long">Alle löschen</span><span class="label-short">Clear</span></button>
+      <button id="btnExportXlsx">Export</button>
+      <button class="danger" id="btnDeleteAll">Clear</button>
     </div>
-  </div>
-
-  <!-- iPhone: zweite, ruhige Navigationszeile -->
-  <div class="subtoolbar" aria-label="Schnellnavigation">
-    <button id="btnJumpEval" title="Zum Auswertungsbereich springen">📊 Auswertung</button>
-    <button id="btnTop" title="Nach oben">⬆︎ Oben</button>
+    <div class="subtoolbar">
+      <button id="btnJumpEval" title="Zum Auswertungsbereich springen">📊 Auswertung</button>
+      <button id="btnTop" title="Zurück zur letzten Position">↩︎ Zurück</button>
+    </div>
   </div>
 </header>
 
@@ -310,22 +291,7 @@
         </div>
         <div>
           <label for="searchText">Suche (Name/Notizen/Partner)</label>
-          <input id="searchText" placeholder="z.B. 'Park', 'Jan' …">
-        </div>
-        <div>
-          <label for="filterRange">Zeitraum</label>
-          <select id="filterRange">
-            <option value="">Ganzer Zeitraum</option>
-            <option value="1">1 Monat</option>
-            <option value="2">2 Monate</option>
-            <option value="3">3 Monate</option>
-            <option value="4">4 Monate</option>
-            <option value="5">5 Monate</option>
-            <option value="6">6 Monate</option>
-            <option value="8">8 Monate</option>
-            <option value="10">10 Monate</option>
-            <option value="12">12 Monate</option>
-          </select>
+          <input id="searchText" placeholder="z.B. &#39;Park&#39;, &#39;Jan&#39; …">
         </div>
       </div>
 
@@ -337,7 +303,7 @@
         <div class="fileRow">
           <input type="file" id="fileXlsx" accept=".xlsx">
           <button id="btnImport">Excel-Import</button>
-          <span class="muted" id="importMsg"></span>
+          <span class="muted" id="importMsg">Import fehlgeschlagen.</span>
         </div>
       </div>
 
@@ -348,13 +314,7 @@
         Spalte <b>Leistungsrelevant</b> (ja/nein oder 1/0) wird beim Import übernommen.
       </div>
 
-      <div class="list" id="list"><div class="muted" style="padding:12px 2px">Keine Einträge (oder Filter zu eng).</div></div>
-    </section>
-
-    <aside class="card" id="eval">
-      <h2>Auswertung</h2>
-
-      <div class="row" style="margin-bottom:10px">
+      <div class="list" id="list"><div class="muted" style<div class="row" style="margin-bottom:10px">
         <div style="min-width:220px; flex:1">
           <label for="evalScope">Auswertung für</label>
           <select id="evalScope">
@@ -367,14 +327,29 @@
         </div>
 
         <div style="min-width:220px; flex:1">
-          <label for="evalMode">Zeitraum-Modus</label>
-          <select id="evalMode">
-            <option value="WEEKS" selected="">Letzte X Wochen</option>
-            <option value="UNITS">Letzte N Einheiten</option>
+          <label for="evalRange">Zeitraum</label>
+          <select id="evalRange">
+            <option value="1">1 Monat</option>
+            <option value="2">2 Monate</option>
+            <option value="3">3 Monate</option>
+            <option value="4" selected>4 Monate</option>
+            <option value="5">5 Monate</option>
+            <option value="6">6 Monate</option>
+            <option value="8">8 Monate</option>
+            <option value="10">10 Monate</option>
+            <option value="12">12 Monate</option>
+            <option value="ALL">Ganzer Zeitraum</option>
           </select>
         </div>
 
-        <div style="min-width:220px; flex:1">
+        <!-- Legacy controls kept hidden for stable evaluation logic -->
+        <div style="display:none">
+          <label for="evalMode">Zeitraum-Modus</label>
+          <select id="evalMode">
+            <option value="WEEKS" selected>Letzte X Wochen</option>
+            <option value="UNITS">Letzte N Einheiten</option>
+          </select>
+
           <label for="evalRangeWeeks">Wochen</label>
           <select id="evalRangeWeeks">
             <option value="4">4</option>
@@ -385,10 +360,12 @@
             <option value="24">24</option>
             <option value="ALL">Ganzer Zeitraum</option>
           </select>
-        </div>
 
-        <div style="min-width:220px; flex:1">
           <label for="evalUnits">Einheiten (manuell)</label>
+          <input id="evalUnits" type="number" min="1" step="1" value="30" />
+        </div>
+      </div>
+ for="evalUnits">Einheiten (manuell)</label>
           <input id="evalUnits" type="number" min="1" step="1" value="30" disabled="">
         </div>
       </div>
@@ -854,43 +831,17 @@
   const filterSportEl = $("#filterSport");
   const filterTypeEl = $("#filterType");
   const searchTextEl = $("#searchText");
-  const filterRangeEl = $("#filterRange");
 
-  function resetFiltersToAll() { filterSportEl.value=""; filterTypeEl.value=""; if (filterRangeEl) filterRangeEl.value=""; }
+  function resetFiltersToAll() { filterSportEl.value=""; filterTypeEl.value=""; }
 
   function getFiltered() {
     const fs = filterSportEl.value;
     const ft = filterTypeEl.value;
     const q = searchTextEl.value.trim().toLowerCase();
-    const rangeMonths = filterRangeEl ? (filterRangeEl.value || "") : "";
-    function isoToday() {
-      const d = new Date();
-      const y = d.getFullYear();
-      const m = String(d.getMonth()+1).padStart(2,'0');
-      const dd = String(d.getDate()).padStart(2,'0');
-      return `${y}-${m}-${dd}`;
-    }
-    function monthsBackISO(months) {
-      const d = new Date();
-      d.setMonth(d.getMonth() - months);
-      const y = d.getFullYear();
-      const m = String(d.getMonth()+1).padStart(2,'0');
-      const dd = String(d.getDate()).padStart(2,'0');
-      return `${y}-${m}-${dd}`;
-    }
-
 
     let arr = state.entries.slice();
     if (fs) arr = arr.filter(e => e.sport === fs);
     if (ft) arr = arr.filter(e => (e.type || "") === ft);
-
-    if (rangeMonths) {
-      const months = parseInt(rangeMonths, 10);
-      if (!isNaN(months) && months > 0) {
-        const cutoff = monthsBackISO(months);
-        arr = arr.filter(e => isISODate(e.date||"") && (e.date >= cutoff));
-      }
-    }
 
     if (q) {
       arr = arr.filter(e => ([e.name,e.notes,e.partner,e.surface,e.sport,e.type].join(" ").toLowerCase()).includes(q));
@@ -2360,7 +2311,6 @@
 
   filterSportEl.addEventListener("change", renderList);
   filterTypeEl.addEventListener("change", renderList);
-  if (filterRangeEl) filterRangeEl.addEventListener("change", renderList);
   searchTextEl.addEventListener("input", () => {
     clearTimeout(searchTextEl._t);
     searchTextEl._t = setTimeout(renderList, 120);
@@ -2472,24 +2422,63 @@
 
 })();
 
-  // iPhone UX: Jump to evaluation section
+
+  // iPhone master: jump to evaluation and back
   (function(){
-    const btn = document.getElementById("btnJumpEval");
-    if (!btn) return;
-    btn.addEventListener("click", () => {
-      const el = document.getElementById("eval");
-      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+    let lastScrollY = 0;
+    const btnEval = document.getElementById("btnJumpEval");
+    const btnBack = document.getElementById("btnTop");
+    const evalEl = document.getElementById("eval");
+    if (btnEval) {
+      btnEval.addEventListener("click", () => {
+        lastScrollY = window.scrollY || 0;
+        if (evalEl && evalEl.scrollIntoView) evalEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+    if (btnBack) {
+      btnBack.addEventListener("click", () => {
+        window.scrollTo({ top: (lastScrollY||0), behavior: "smooth" });
+      });
+    }
   })();
 
-
-  // iPhone UX: back to top
+  // iPhone master: months preset -> legacy weeks selector (keeps existing eval logic stable)
   (function(){
-    const btn = document.getElementById("btnTop");
-    if (!btn) return;
-    btn.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+    const range = document.getElementById("evalRange");
+    const mode = document.getElementById("evalMode");
+    const weeks = document.getElementById("evalRangeWeeks");
+    const units = document.getElementById("evalUnits");
+    if (!range || !weeks) return;
+
+    const opts = Array.from(weeks.options).map(o => o.value);
+
+    const nearest = (w) => {
+      const nums = opts.map(v => (v==="ALL" ? 520 : Number(v))).filter(n => !Number.isNaN(n));
+      if (!nums) return "4";
+      let best = nums[0], bestD = Math.abs(nums[0]-w);
+      for (const n of nums[1:]) {
+        const d = Math.abs(n-w);
+        if (d < bestD) { best = n; bestD = d; }
+      }
+      return String(best === 520 ? "ALL" : best);
+    };
+
+    const apply = () => {
+      if (mode) mode.value = "WEEKS";
+      if (units) units.value = "30";
+      if (range.value === "ALL") {
+        weeks.value = "ALL";
+      } else {
+        const m = Number(range.value);
+        const w = Math.max(1, Math.round(m * 4.345)); // 1 month ~ 4.345 weeks
+        weeks.value = nearest(w);
+      }
+      if (typeof updateEval === "function") updateEval();
+      else if (typeof renderAll === "function") renderAll();
+    };
+
+    range.addEventListener("change", apply);
+    apply();
   })();
 
 </script>

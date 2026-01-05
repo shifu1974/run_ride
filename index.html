@@ -223,7 +223,22 @@
     font-weight: 600;
   }
   /* JSON-Export auf iPhone ausblenden */
-  #btnExportJSON { display: none !important; }
+  #btnExportJson { display: none !important; }
+  /* iPhone: obere Aktionsleiste kompakt in 3 Spalten (Neuer Eintrag · Export · Clear all) */
+  .toolbar{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    align-items: center;
+  }
+  .toolbar .btn{
+    width: 100%;
+    justify-content: center;
+    padding: 10px 10px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
   /* Kleine Erläutertexte auf iPhone ausblenden (Desktop behält sie) */
   .muted.small, .helptext, .hint, .tinyNote { display: none !important; }
   /* Sprung-Button zur Auswertung (auf iPhone sichtbar) */
@@ -234,12 +249,12 @@
 /* === iPhone Feintuning v2: Toolbar 2-zeilig + Filterlayout + Sticky ok === */
 @media (max-width: 480px) {
   /* oben: nur 3 Hauptbuttons sichtbar (JSON bleibt versteckt) */
-  header .toolbar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  header .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   #btnNew { grid-column: 1 / 2; }
   #btnExportXlsx { grid-column: 2 / 3; }
-  #btnDeleteAll { grid-column: 3 / 4; }
+  #btnDeleteAll { grid-column: 1 / -1; }
   /* JSON auf iPhone aus (zusätzlich, falls nicht schon gesetzt) */
-  #btnExportJSON { display:none !important; }
+  #btnExportJson { display:none !important; }
 
   /* zweite Zeile: Auswertung/Oben */
   header .subtoolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
@@ -370,7 +385,6 @@
           <label for="evalMode">Zeitraum-Modus</label>
           <select id="evalMode">
             <option value="WEEKS" selected="">Letzte X Wochen</option>
-            <option value="MONTHS">Letzte X Monate</option>
             <option value="UNITS">Letzte N Einheiten</option>
           </select>
         </div>
@@ -1267,47 +1281,6 @@
   const evalRangeWeeksEl=$("#evalRangeWeeks");
   const evalUnitsEl=$("#evalUnits");
 
-  // iPhone UI Tuning (Step 1): 3 Buttons oben, Monats-Auswertung, Einheiten(manual) ausblenden
-  const isIPhone = window.matchMedia && window.matchMedia("(max-width: 480px)").matches;
-
-  function applyIPhoneStep1(){
-    if(!isIPhone) return;
-
-    // Buttons kürzen + JSON ausblenden
-    if(btnExportXlsx) btnExportXlsx.textContent = "Export";
-    if(btnDeleteAll){
-      btnDeleteAll.textContent = "Clear all";
-      btnDeleteAll.title = "Alle löschen";
-    }
-    if(btnExportJSON) btnExportJSON.style.display = "none";
-
-    // Auswertung: auf Monate umstellen (ohne 'Einheiten (manuell)')
-    if(evalModeEl){
-      evalModeEl.value = "MONTHS";
-      const modeField = evalModeEl.closest(".field");
-      if(modeField) modeField.style.display = "none";
-    }
-    if(evalUnitsEl){
-      const unitsField = evalUnitsEl.closest(".field");
-      if(unitsField) unitsField.style.display = "none";
-    }
-    if(evalRangeWeeksEl){
-      const label = document.querySelector('label[for="evalRangeWeeks"]');
-      if(label) label.textContent = "Monate";
-
-      const opts = [1,2,3,4,5,6,8,10,12].map(n => `<option value="${n}">${n}</option>`).join("");
-      evalRangeWeeksEl.innerHTML = opts + `<option value="ALL">Ganzer Zeitraum</option>`;
-      // Default 4 Monate, wenn möglich
-      if(!evalRangeWeeksEl.value || evalRangeWeeksEl.value === "4") {
-        evalRangeWeeksEl.value = "4";
-      } else if(![...evalRangeWeeksEl.options].some(o=>o.value===evalRangeWeeksEl.value)){
-        evalRangeWeeksEl.value = "4";
-      }
-    }
-  }
-
-  applyIPhoneStep1();
-
   function dateToMondayISO(iso){
     if(!isISODate(iso)) return "";
     const [y,m,d]=iso.split("-").map(Number);
@@ -1365,28 +1338,13 @@
   }
 
   function getWeeksInRange(){
-    const mode = (evalModeEl && evalModeEl.value) ? evalModeEl.value : "WEEKS";
-    const v = evalRangeWeeksEl.value;
-
-    // Ganzer Zeitraum
-    if (v === "ALL" || mode === "ALL") return getAllWeekKeysFromData();
-
-    // Monate (iPhone): evalRangeWeeksEl enthält hier die Anzahl Monate (1,2,3,4,5,6,8,10,12)
-    if (mode === "MONTHS") {
-      const months = Number(v);
-      if (!isFinite(months) || months <= 0) return getLastNWeeksKeys(20);
-      const d = new Date();
-      d.setMonth(d.getMonth() - months);
-      const startMonday = dateToMondayISO(d.toISOString().slice(0,10));
-      return getAllWeekKeysFromData().filter(k => k >= startMonday);
-    }
-
-    // Wochen (Standard)
-    const n = Number(v);
-    return (!isFinite(n) || n <= 0) ? getLastNWeeksKeys(20) : getLastNWeeksKeys(n);
+    const v=evalRangeWeeksEl.value;
+    if(v==="ALL") return getAllWeekKeysFromData();
+    const n=Number(v);
+    return (!isFinite(n)||n<=0) ? getLastNWeeksKeys(20) : getLastNWeeksKeys(n);
   }
 
-function getAllowedEntriesByMode(scope){
+  function getAllowedEntriesByMode(scope){
     const mode = evalModeEl.value;
     const entries = state.entries
       .map(e => enrich({ ...e }))
@@ -2406,7 +2364,7 @@ function getAllowedEntriesByMode(scope){
   // -------- Events --------
   $("#btnNew").addEventListener("click", openNew);
   $("#btnClose").addEventListener("click", () => dlg.close());
-  $("#btnExportJSON").addEventListener("click", exportJson);
+  $("#btnExportJson").addEventListener("click", exportJson);
   $("#btnExportXlsx").addEventListener("click", exportXlsx);
 
   $("#btnDeleteAll").addEventListener("click", () => {
@@ -2592,4 +2550,18 @@ function getAllowedEntriesByMode(scope){
 </script>
 
 
+
+<script>
+(function(){
+  const isPhone = window.matchMedia && window.matchMedia("(max-width: 480px)").matches;
+  if(!isPhone) return;
+  const btnExport = document.getElementById("btnExportXlsx");
+  const btnDelete = document.getElementById("btnDeleteAll");
+  const btnTop = document.getElementById("btnTop");
+  // Beschriftungen kompakter fürs iPhone
+  if(btnExport) btnExport.textContent = "Export";
+  if(btnDelete) btnDelete.textContent = "Clear all";
+  if(btnTop) btnTop.textContent = "↩ Zurück";
+})();
+</script>
 </body></html>

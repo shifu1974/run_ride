@@ -213,7 +213,7 @@
     }
   
 /* === iPhone Master UI === */
-header { position: sticky; top: 0; z-index: 50; background: rgba(6,16,31,.82); backdrop-filter: blur(10px); }
+header { position: sticky; top: 0; z-index: 50; background: #fff; }
 header .row { display: flex; flex-direction: column; gap: 8px; }
 header .toolbar {
   display: grid;
@@ -240,6 +240,35 @@ header .toolbar button, header .subtoolbar button {
 /* Hide tiny hints (can revisit for desktop later) */
 .muted.small, .helptext, .hint, .tinyNote { display:none !important; }
 
+
+/* iPhone: Top-Buttons strikt 3 pro Zeile */
+@media (max-width: 520px){
+  header .toolbar{
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  header .toolbar .btn{
+    width: 100% !important;
+    padding: 10px 10px !important;
+    font-size: 15px !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+  }
+  header .subtoolbar{
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  header .subtoolbar .btn{
+    width: 100% !important;
+    padding: 10px 10px !important;
+    font-size: 15px !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+  }
+}
+
 </style>
 </head>
 
@@ -250,11 +279,11 @@ header .toolbar button, header .subtoolbar button {
     <div class="toolbar">
       <button class="primary" id="btnNew">+ Neuer Eintrag</button>
       <button id="btnExportXlsx">Export</button>
-      <button class="danger" id="btnDeleteAll" title="Clear all">Clear</button>
+      <button class="danger" id="btnDeleteAll">Clear</button>
     </div>
     <div class="subtoolbar">
       <button id="btnJumpEval" title="Zum Auswertungsbereich springen">📊 Auswertung</button>
-      <button id="btnTop" title="Zurück zur letzten Position">↩︎ Zurück</button>
+      <button id="btnTop" title="Nach oben">↑ Oben</button>
     </div>
   </div>
 </header>
@@ -314,10 +343,7 @@ header .toolbar button, header .subtoolbar button {
         Spalte <b>Leistungsrelevant</b> (ja/nein oder 1/0) wird beim Import übernommen.
       </div>
 
-      <div class="list" id="list"></div>
-
-      <div id="eval"></div>
-      <div class="row" style="margin-bottom:10px">
+      <div class="list" id="list"><div class="muted" style<div class="row" style="margin-bottom:10px">
         <div style="min-width:220px; flex:1">
           <label for="evalScope">Auswertung für</label>
           <select id="evalScope">
@@ -368,6 +394,11 @@ header .toolbar button, header .subtoolbar button {
           <input id="evalUnits" type="number" min="1" step="1" value="30" />
         </div>
       </div>
+ for="evalUnits">Einheiten (manuell)</label>
+          <input id="evalUnits" type="number" min="1" step="1" value="30" disabled="">
+        </div>
+      </div>
+
       <div class="kpi" id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitraum)</div></div><div class="box"><div class="v">0</div><div class="k">Minuten gesamt</div></div><div class="box"><div class="v">0</div><div class="k">GA1 Min</div></div><div class="box"><div class="v">0 (0%)</div><div class="k">GA2 Min (GA2%)</div></div><div class="box"><div class="v">0.0</div><div class="k">Kilometer gesamt</div></div><div class="box"><div class="v">0</div><div class="k">Höhenmeter gesamt</div></div></div>
 
       <div class="sectionTitle">

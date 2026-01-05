@@ -233,7 +233,7 @@
 
 /* === iPhone Feintuning v2: Toolbar 2-zeilig + Filterlayout + Sticky ok === */
 @media (max-width: 480px) {
-  /* oben: nur 3 Hauptbuttons sichtbar (JSON bleibt versteckt) */
+  /* oben: 3 Hauptbuttons in einer Reihe (JSON bleibt versteckt) */
   header .toolbar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
   #btnNew { grid-column: 1 / 2; }
   #btnExportXlsx { grid-column: 2 / 3; }
@@ -265,9 +265,9 @@
     <h1>Run &amp; Ride</h1>
     <div class="toolbar">
       <button class="primary" id="btnNew">+ Neuer Eintrag</button>
-      <button id="btnExportXlsx">Export (Excel)</button>
-      <button id="btnExportJson">Export (JSON)</button>
-      <button class="danger" id="btnDeleteAll">Alle löschen</button>
+      <button id="btnExportXlsx"><span class="label-long">Export (Excel)</span><span class="label-short">Export</span></button>
+      <button id="btnExportJson" class="desktop-only">Export (JSON)</button>
+      <button class="danger" id="btnDeleteAll"><span class="label-long">Alle löschen</span><span class="label-short">Clear</span></button>
     </div>
   </div>
 

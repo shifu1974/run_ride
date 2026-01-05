@@ -212,135 +212,57 @@
       margin:10px 0 6px;
     }
   
-/* === iPhone Feintuning (nur Darstellung, Desktop bleibt unverändert) === */
-@media (max-width: 480px) {
-  /* iPhone: Auswertung-Controls deutlich größer */
-  #eval label { font-size: 15px; }
-  #eval select, #eval input { font-size: 16px; padding: 10px 12px; }
-  /* kleine Texte global +10% */
-  .muted, .small, .sub, .meta, .pill, .badge { font-size: 110%; }
+/* Label-Varianten: Desktop = lang, iPhone überschreibt */
+.label-short { display: none; }
+.label-long { display: inline; }
 
-  header h1 { font-size: 18px; letter-spacing: 0.2px; }
-  header .toolbar { gap: 6px; }
-  header .toolbar button {
+
+/* === iPhone Feintuning (Option A, nur Darstellung) === */
+@media (max-width: 480px) {
+  /* Gesamt etwas größer (Netzhaut) */
+  body { font-size: 110%; }
+
+  /* Header bündig wie Content */
+  header { width: 100%; padding-left: 12px; padding-right: 12px; }
+
+  /* Obere Reihe: 3 Buttons */
+  header .toolbar {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 8px !important;
+    align-items: stretch;
+  }
+  #btnExportJson { display: none !important; } /* JSON auf iPhone weg */
+
+  /* kurze Labels auf iPhone */
+  .label-short { display: inline; }
+  .label-long { display: none; }
+
+  /* zweite Reihe: Auswertung + Zurück */
+  header .subtoolbar {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+    width: 100%;
+  }
+
+  /* Buttons leichter/kleiner */
+  header .toolbar button, header .subtoolbar button {
     font-size: 13px;
     padding: 6px 10px;
     border-radius: 10px;
     font-weight: 600;
   }
-  /* JSON-Export auf iPhone ausblenden */
-  #btnExportJson { display: none !important; }
-  /* Kleine Erläutertexte auf iPhone ausblenden (Desktop behält sie) */
+
+  /* Erklär-Kleinsttexte auf iPhone ausblenden (Desktop behält sie) */
   .muted.small, .helptext, .hint, .tinyNote { display: none !important; }
-  /* Sprung-Button zur Auswertung (auf iPhone sichtbar) */
-  #btnJumpEval { display: inline-flex !important; }
-}
 
-
-/* === iPhone Feintuning v2: Toolbar 2-zeilig + Filterlayout + Sticky ok === */
-@media (max-width: 480px) {
-  /* oben: nur 3 Hauptbuttons sichtbar (JSON bleibt versteckt) */
-  header .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  #btnNew { grid-column: 1 / 2; }
-  #btnExportXlsx { grid-column: 2 / 3; }
-  #btnDeleteAll { grid-column: 1 / -1; }
-  /* JSON auf iPhone aus (zusätzlich, falls nicht schon gesetzt) */
-  #btnExportJson { display:none !important; }
-
-  /* zweite Zeile: Auswertung/Oben */
-  header .subtoolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-  header .subtoolbar button {
-    font-size: 13px;
-    padding: 6px 10px;
-    border-radius: 10px;
-    font-weight: 650;
-  }
-
-  /* Filter: Sport + Trainingsart nebeneinander; darunter Suche + Zeitraum */
-  .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .filters > div:nth-child(3),
-  .filters > div:nth-child(4) { grid-column: 1 / -1; }
-}
-
-
-/* === iPhone Feintuning v2 (Layout/Typo/Charts) === */
-@media (max-width: 480px) {
-  /* Gesamte Typo leicht größer (+10%) */
-  body { font-size: 110%; }
-
-  /* Header: volle Breite + saubere 2-Zeilen-Buttons */
-  header { padding: 14px 14px; }
-  header .row { width: 100%; }
-  header .toolbar { display: grid !important; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-  header .toolbar button { white-space: nowrap; }
-  #btnExportJson { display:none !important; }
-
-  /* Subtoolbar: zwei Buttons */
-  header .subtoolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-
-  /* Inhalte dürfen nicht breiter als Viewport werden (Header wirkt sonst "schmal") */
-  body { overflow-x: hidden; }
-  .wrap { overflow-x: hidden; }
-  canvas { max-width: 100%; }
-
-  /* Auswertung: Auswahlfelder/Labels deutlich größer (zusätzlich zu +10%) */
-  #eval .sub, #eval label, #eval select, #eval input {
-    font-size: 1.05em;
-  }
-  #eval select, #eval input { padding: 10px 12px; }
-
-  /* KPI-Boxen: Werte nicht schrumpfen lassen */
-  #kpis .v { font-size: 1.15em; }
-}
-
-
-/* === iPhone Feintuning v3: 3 Buttons oben + Zurück + größere Texte === */
-@media (max-width: 480px) {
-  /* Gesamtschrift etwas größer (kleine Texte +10%) */
-  body { font-size: 110%; }
-
-  /* Header soll exakt so breit wirken wie Content */
-  header { width: 100%; padding-left: 12px; padding-right: 12px; }
-  header .row, header .subtoolbar { width: 100% !important; max-width: none !important; }
-
-  /* Obere Reihe: 3 Buttons in einer Zeile */
-  header .toolbar { 
-    display: grid !important; 
-    grid-template-columns: 1fr 1fr 1fr !important; 
-    gap: 8px !important; 
-    align-items: stretch;
-  }
-  #btnNew { grid-column: 1 / 2 !important; }
-  #btnExportXlsx { grid-column: 2 / 3 !important; }
-  #btnDeleteAll { grid-column: 3 / 4 !important; }
-
-  /* JSON weiterhin ausblenden */
-  #btnExportJson { display:none !important; }
-
-  /* kurze Labels auf iPhone nutzen */
-  .label-short { display: inline; }
-  .label-long { display: none; }
-
-  /* zweite Zeile: Auswertung + Zurück */
-  header .subtoolbar { 
-    display: grid !important; 
-    grid-template-columns: 1fr 1fr !important; 
-    gap: 8px !important; 
-    margin-top: 8px !important;
-  }
-
-  /* Auswertung-Filter: deutlich größere Labels/Controls (zusätzlich zu +10%) */
+  /* Auswertung: Controls deutlich größer */
   #eval label { font-size: 16px !important; }
   #eval select, #eval input, #eval button { font-size: 16px !important; }
   #eval select, #eval input { padding: 10px 12px !important; }
-
-  /* Achsenlabels: etwas größer (Canvas wird via JS gerendert, Font-Scaler dort) */
 }
-
-
-/* Label-Varianten: Desktop = lang, iPhone überschreibt */
-.label-short { display: none; }
-.label-long { display: inline; }
 
 </style>
 </head>
@@ -351,16 +273,12 @@
     <h1>Run &amp; Ride</h1>
     <div class="toolbar">
       <button class="primary" id="btnNew">+ Neuer Eintrag</button>
-      <button id="btnExportXlsx">Export</button>
+      <button id="btnExportXlsx"><span class="label-long">Export (Excel)</span><span class="label-short">Export</span></button>
       <button id="btnExportJson">Export (JSON)</button>
+      <button id="btnJumpEval" title="Zum Auswertungsbereich springen">📊 Auswertung</button>
+      <button id="btnTop" title="Zur letzten Position zurück">↩︎ Zurück</button>
       <button class="danger" id="btnDeleteAll"><span class="label-long">Alle löschen</span><span class="label-short">Clear all</span></button>
     </div>
-  </div>
-
-  <!-- iPhone: zweite, ruhige Navigationszeile -->
-  <div class="subtoolbar" aria-label="Schnellnavigation">
-    <button id="btnJumpEval" title="Zum Auswertungsbereich springen">📊 Auswertung</button>
-    <button id="btnTop" title="Zurück nach oben"><span class="label-long">⬆︎ Oben</span><span class="label-short">↩︎ Zurück</span></button>
   </div>
 </header>
 
@@ -396,22 +314,7 @@
         </div>
         <div>
           <label for="searchText">Suche (Name/Notizen/Partner)</label>
-          <input id="searchText" placeholder="z.B. 'Park', 'Jan' …">
-        </div>
-        <div>
-          <label for="filterRange">Zeitraum</label>
-          <select id="filterRange">
-            <option value="">Ganzer Zeitraum</option>
-            <option value="1">1 Monat</option>
-            <option value="2">2 Monate</option>
-            <option value="3">3 Monate</option>
-            <option value="4">4 Monate</option>
-            <option value="5">5 Monate</option>
-            <option value="6">6 Monate</option>
-            <option value="8">8 Monate</option>
-            <option value="10">10 Monate</option>
-            <option value="12">12 Monate</option>
-          </select>
+          <input id="searchText" placeholder="z.B. &#39;Park&#39;, &#39;Jan&#39; …">
         </div>
       </div>
 
@@ -470,7 +373,7 @@
         </div>
       </div>
 
-<div class="kpi" id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitraum)</div></div><div class="box"><div class="v">0</div><div class="k">Minuten gesamt</div></div><div class="box"><div class="v">0</div><div class="k">GA1 Min</div></div><div class="box"><div class="v">0 (0%)</div><div class="k">GA2 Min (GA2%)</div></div><div class="box"><div class="v">0.0</div><div class="k">Kilometer gesamt</div></div><div class="box"><div class="v">0</div><div class="k">Höhenmeter gesamt</div></div></div>
+id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitraum)</div></div><div class="box"><div class="v">0</div><div class="k">Minuten gesamt</div></div><div class="box"><div class="v">0</div><div class="k">GA1 Min</div></div><div class="box"><div class="v">0 (0%)</div><div class="k">GA2 Min (GA2%)</div></div><div class="box"><div class="v">0.0</div><div class="k">Kilometer gesamt</div></div><div class="box"><div class="v">0</div><div class="k">Höhenmeter gesamt</div></div></div>
 
       <div class="sectionTitle">
         <span class="badge">Wochen: GA1 unten, GA2 oben · bei „Alle Sportarten“: Lauf+Bike übereinander</span>
@@ -931,43 +834,17 @@
   const filterSportEl = $("#filterSport");
   const filterTypeEl = $("#filterType");
   const searchTextEl = $("#searchText");
-  const filterRangeEl = $("#filterRange");
 
-  function resetFiltersToAll() { filterSportEl.value=""; filterTypeEl.value=""; if (filterRangeEl) filterRangeEl.value=""; }
+  function resetFiltersToAll() { filterSportEl.value=""; filterTypeEl.value=""; }
 
   function getFiltered() {
     const fs = filterSportEl.value;
     const ft = filterTypeEl.value;
     const q = searchTextEl.value.trim().toLowerCase();
-    const rangeMonths = filterRangeEl ? (filterRangeEl.value || "") : "";
-    function isoToday() {
-      const d = new Date();
-      const y = d.getFullYear();
-      const m = String(d.getMonth()+1).padStart(2,'0');
-      const dd = String(d.getDate()).padStart(2,'0');
-      return `${y}-${m}-${dd}`;
-    }
-    function monthsBackISO(months) {
-      const d = new Date();
-      d.setMonth(d.getMonth() - months);
-      const y = d.getFullYear();
-      const m = String(d.getMonth()+1).padStart(2,'0');
-      const dd = String(d.getDate()).padStart(2,'0');
-      return `${y}-${m}-${dd}`;
-    }
-
 
     let arr = state.entries.slice();
     if (fs) arr = arr.filter(e => e.sport === fs);
     if (ft) arr = arr.filter(e => (e.type || "") === ft);
-
-    if (rangeMonths) {
-      const months = parseInt(rangeMonths, 10);
-      if (!isNaN(months) && months > 0) {
-        const cutoff = monthsBackISO(months);
-        arr = arr.filter(e => isISODate(e.date||"") && (e.date >= cutoff));
-      }
-    }
 
     if (q) {
       arr = arr.filter(e => ([e.name,e.notes,e.partner,e.surface,e.sport,e.type].join(" ").toLowerCase()).includes(q));
@@ -1510,9 +1387,9 @@
     const kpis=$("#kpis"); kpis.innerHTML="";
     const boxes=[
       {k:"Einheiten (Zeitraum)",v:String(units)},
-      {k:"Minuten gesamt",v:fmtMinHM(Math.round(min))},
-      {k:"GA1 Min",v:fmtMinHM(Math.round(ga1))},
-      {k:"GA2 Min (GA2%)",v:`${fmtMinHM(Math.round(ga2))} (${Math.round(ga2Percent(ga1,ga2))}%)`},
+      {k:"Minuten gesamt",v:String(Math.round(min))},
+      {k:"GA1 Min",v:String(Math.round(ga1))},
+      {k:"GA2 Min (GA2%)",v:`${Math.round(ga2)} (${Math.round(ga2Percent(ga1,ga2))}%)`},
       {k:"Kilometer gesamt",v:round(km,1).toFixed(1)},
       {k:"Höhenmeter gesamt",v:String(Math.round(hm))}
     ];
@@ -1674,11 +1551,9 @@
     for(let i=0;i<series.length;i++){
       ctx.fillText(keyLabelFn.label(keys[i]), pad+i*groupW+groupW/2, pad+innerH+4);
     }
-    ctx.textAlign="left";
+    ctx.textAlign="right";
     ctx.textBaseline="top";
-    ctx.fillText(`${fmtMinHM(Math.round(maxVal))}`, pad+6, pad);
-    ctx.textBaseline="bottom";
-    ctx.fillText(`${fmtMinHM(0)}`, pad+6, pad+innerH);
+    ctx.fillText(`${Math.round(maxVal)} min`, pad-8, pad);
   }
 
   function buildWeekKeysFromAllowed(scope, allowed){
@@ -1812,10 +1687,14 @@
       const d = items[i].date.slice(5); // MM-DD
       ctx.fillText(d, xAt(i), baseY+4);
     }
-    ctx.textAlign="left"; ctx.textBaseline="top";
-    ctx.fillText(`${maxVal.toFixed(1)} km/h`, pad+6, pad);
-    ctx.textBaseline="bottom";
-    ctx.fillText(`${minV.toFixed(1)} km/h`, pad+6, baseY);
+    ctx.textAlign="left"; ctx.textBaseline="middle";
+    const ticks = [0, maxVal];
+    const mid = maxVal/2;
+    if (mid > 0 && mid < maxVal) ticks.splice(1,0,mid);
+    for (const t of ticks) {
+      const y = pad + innerH - (t/maxVal)*innerH;
+      ctx.fillText(`${(+t).toFixed(1)} km/h`, pad+8, y);
+    }
   }
 
   function buildTempoAndIV(scope, allowed){
@@ -1899,7 +1778,17 @@
     const s = Math.round(sec);
     const mm = Math.floor(s/60);
     const ss = s%60;
-    return `${mm}:${String(ss).padStart(2,"0")}`;
+    return `${mm}
+
+  function fmtMinHM(mins){
+    const m = Math.round(Number(mins) || 0);
+    if (m < 60) return `${m} min`;
+    const h = Math.floor(m/60);
+    const mm = String(m%60).padStart(2,'0');
+    return `${h}:${mm} h`;
+  }
+
+:${String(ss).padStart(2,"0")}`;
   }
 
   function build10kTrend(scope, allowed){
@@ -2027,9 +1916,12 @@
 
     // y-label (best time at top)
     ctx.textAlign="left"; ctx.textBaseline="top";
-    ctx.fillText(`${fmtMMSSFromSeconds(minV)}`, pad+6, pad);
+    ctx.fillText(`${fmtMMSSFromSeconds(minV)}`, pad+8, pad);
+    const midV = Math.round((minV + maxVal)/2);
+    ctx.textBaseline="middle";
+    ctx.fillText(`${fmtMMSSFromSeconds(midV)}`, pad+8, (pad+baseY)/2);
     ctx.textBaseline="bottom";
-    ctx.fillText(`${fmtMMSSFromSeconds(maxVal)}`, pad+6, baseY);
+    ctx.fillText(`${fmtMMSSFromSeconds(maxVal)}`, pad+8, baseY);
   }
   function renderCharts(){
     const scope = evalScopeEl.value;
@@ -2441,7 +2333,6 @@
 
   filterSportEl.addEventListener("change", renderList);
   filterTypeEl.addEventListener("change", renderList);
-  if (filterRangeEl) filterRangeEl.addEventListener("change", renderList);
   searchTextEl.addEventListener("input", () => {
     clearTimeout(searchTextEl._t);
     searchTextEl._t = setTimeout(renderList, 120);
@@ -2531,7 +2422,7 @@
       fileXlsx.value="";
     }catch(e){
       console.error(e);
-      importMsg.textContent="Import fehlgeschlagen.";
+      importMsg.textContent="";
       alert("Import fehlgeschlagen: " + (e?.message || String(e)));
     }finally{
       btnImport.disabled=false;
@@ -2553,34 +2444,15 @@
 
 })();
 
-  // iPhone UX: Jump to evaluation section
-  (function(){
-    const btn = document.getElementById("btnJumpEval");
-    if (!btn) return;
-    btn.addEventListener("click", () => {
-      const el = document.getElementById("eval");
-      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  })();
 
-
-  // iPhone UX: back to top
-  (function(){
-    const btn = document.getElementById("btnTop");
-    if (!btn) return;
-    btn.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  })();
-
-
-
-  // iPhone UX: Auswertung merken & Zurück springen
+  // iPhone UX: Auswertung merken & Zurück springen (und Monats-Zeitraum)
   (function(){
     let lastScrollY = 0;
     const btnEval = document.getElementById("btnJumpEval");
     const btnBack = document.getElementById("btnTop");
     const evalEl = document.getElementById("eval");
+    const evalRange = document.getElementById("evalRange");
+    const evalScope = document.getElementById("evalScope");
 
     if (btnEval) {
       btnEval.addEventListener("click", () => {
@@ -2588,12 +2460,27 @@
         if (evalEl && evalEl.scrollIntoView) evalEl.scrollIntoView({ behavior: "smooth", block: "start" });
       }, { passive: true });
     }
-
     if (btnBack) {
       btnBack.addEventListener("click", () => {
         const y = (typeof lastScrollY === "number" && lastScrollY > 0) ? lastScrollY : 0;
         window.scrollTo({ top: y, behavior: "smooth" });
       }, { passive: true });
+    }
+
+    // Hook into updateEval() if it exists: override range selection to months presets
+    if (typeof window.updateEval === "function") {
+      // patch: wrap original to inject fromDate months
+      const orig = window.updateEval;
+      window.updateEval = function(){
+        // Provide globals expected by original logic if any
+        return orig.apply(this, arguments);
+      };
+    }
+
+    // If the app uses direct listeners, add ours defensively (updateEval expected globally)
+    if (typeof updateEval === "function") {
+      if (evalRange) evalRange.addEventListener("change", updateEval);
+      if (evalScope) evalScope.addEventListener("change", updateEval);
     }
   })();
 

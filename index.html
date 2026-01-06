@@ -240,35 +240,6 @@ header .toolbar button, header .subtoolbar button {
 /* Hide tiny hints (can revisit for desktop later) */
 .muted.small, .helptext, .hint, .tinyNote { display:none !important; }
 
-
-/* iPhone: Top-Buttons strikt 3 pro Zeile */
-@media (max-width: 520px){
-  header .toolbar{
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 10px !important;
-  }
-  header .toolbar .btn{
-    width: 100% !important;
-    padding: 10px 10px !important;
-    font-size: 15px !important;
-    line-height: 1.15 !important;
-    white-space: nowrap !important;
-  }
-  header .subtoolbar{
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 10px !important;
-  }
-  header .subtoolbar .btn{
-    width: 100% !important;
-    padding: 10px 10px !important;
-    font-size: 15px !important;
-    line-height: 1.15 !important;
-    white-space: nowrap !important;
-  }
-}
-
 </style>
 </head>
 
@@ -2466,7 +2437,7 @@ header .toolbar button, header .subtoolbar button {
     }
     if (btnBack) {
       btnBack.addEventListener("click", () => {
-        window.scrollTo({ top: (lastScrollY||0), behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: "smooth" });
       });
     }
   })();

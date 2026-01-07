@@ -4,7 +4,7 @@
 <html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Run &amp; Ride</title>
+  <title>Run &amp; Ride v27</title>
 
   <!-- XLSX (muss im selben Ordner liegen) -->
   <script src="./xlsx.full.min.js"></script>
@@ -81,9 +81,9 @@
       letter-spacing:.2px;
     }
     button:hover{border-color:rgba(106,166,255,.35)}
-    button.danger{border-color:rgba(255,95,106,.35); color:#ffd6d8}
+    button.danger{border-color:rgba(255,95,106,.75); color:#fff; background:linear-gradient(180deg, rgba(255,95,106,.55), rgba(210,60,70,.55)); box-shadow:0 0 0 1px rgba(255,95,106,.25) inset}
     button.danger:hover{border-color:rgba(255,95,106,.65)}
-    button.primary{border-color:rgba(106,166,255,.45)}
+    button.primary{border-color:rgba(106,166,255,.65); background:linear-gradient(180deg, rgba(106,166,255,.30), rgba(106,166,255,.12)); box-shadow:0 0 0 1px rgba(106,166,255,.18) inset}
     button.primary:hover{border-color:rgba(106,166,255,.8)}
     button.ghost{
       background: rgba(255,255,255,.04);
@@ -108,8 +108,44 @@
     input:focus, select:focus, textarea:focus{border-color:rgba(106,166,255,.65)}
     textarea{min-height:86px; resize:vertical}
 
-    .filters{display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;}
-    @media (max-width: 780px){ .filters{grid-template-columns: 1fr;} }
+    .filters{display:grid; grid-template-columns: 1fr 1fr 1.6fr; gap:8px; align-items:end;}
+
+/* Filter/Suche beim Scrollen sichtbar halten (unter dem sticky Header) */
+.filtersSticky{
+  position: sticky;
+  top: calc(var(--headerH, 84px) + 10px);
+  z-index: 200;
+
+  /* „Deckel“-Effekt: nichts soll dahinter „durchscheinen“ */
+  padding:10px;
+  margin:0 -10px 10px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.08);
+
+  /* komplett opak + Inhalte in den Rundungen clippen */
+  background: linear-gradient(180deg, rgb(12,22,52), rgb(8,16,36));
+  box-shadow: 0 10px 24px rgba(0,0,0,.35);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+
+/* Responsiv: Desktop 3 Spalten, mittel 2 Spalten (Suche volle Breite), iPhone: Filter 2-spaltig + Suche darunter */
+@media (max-width: 700px){
+  .filters{grid-template-columns: repeat(2, minmax(0, 1fr));}
+  .filters > div:last-child{grid-column: 1 / -1;}
+}
+@media (max-width: 520px){
+  .filters{grid-template-columns: repeat(2, minmax(0, 1fr)); gap:6px;}
+  .filters > div:last-child{grid-column: 1 / -1;}
+}
+/* Notfall: extrem schmal – dann 1 Spalte */
+@media (max-width: 340px){
+  .filters{grid-template-columns: 1fr;}
+  .filters > div:last-child{grid-column: auto;}
+}
+      .filters > div:last-child{grid-column: auto;}
+    }
 
     .list{ margin-top:10px; border-top:1px solid var(--line); }
     .item{
@@ -120,7 +156,7 @@
       border-bottom:1px solid var(--line);
       align-items:center;
     }
-    @media (max-width: 820px){ .item{grid-template-columns: 1fr; gap:8px} }
+    @media (max-width: 700px){ .item{grid-template-columns: 1fr; gap:8px} }
 
     /* Datumspalte: Datum + Name in gleicher Größe */
     .item .datecol{display:flex; flex-direction:column; gap:4px}
@@ -180,7 +216,7 @@
 
     .formgrid{display:grid; gap:10px; grid-template-columns: repeat(4, 1fr);}
     @media (max-width: 900px){ .formgrid{grid-template-columns: repeat(2, 1fr);} }
-    @media (max-width: 560px){ .formgrid{grid-template-columns: 1fr;} }
+    @media (max-width: 520px){ .formgrid{grid-template-columns: 1fr;} }
     .span2{grid-column: span 2;}
     .span4{grid-column: span 4;}
     .hint{font-size:11px; color:var(--muted); margin-top:6px}
@@ -201,6 +237,8 @@
     .pill{font-family:var(--mono); font-size:11px; color:#cfe0ff}
 
     .scrollbox{overflow:auto; max-height:280px; border:1px solid rgba(255,255,255,.04); border-radius:12px}
+
+    .scrollbox5{max-height:192px;}
     .scrollbox table thead th{
       position: sticky; top: 0; z-index: 2;
       background: rgba(6,12,26,.92);
@@ -212,59 +250,133 @@
       margin:10px 0 6px;
     }
   
-/* === iPhone Master UI === */
-header { position: sticky; top: 0; z-index: 50; background: #fff; }
-header .row { display: flex; flex-direction: column; gap: 8px; }
-header .toolbar {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-  width: 100%;
+/* ===== v21 Header layout (grouped) ===== */
+.toolbar.toolbar-v21{
+  display:grid;
+  grid-template-columns: auto 1fr auto;
+  align-items:center;
+  gap:14px;
 }
-header .subtoolbar {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  width: 100%;
+.toolbar.toolbar-v21 .toolbar-left{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
-header .toolbar button, header .subtoolbar button {
-  font-size: 13px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  font-weight: 600;
+.toolbar.toolbar-v21 .toolbar-center{
+  display:flex;
+  justify-content:center;
 }
-#eval label { font-size: 16px; }
-#eval select, #eval input { font-size: 16px; padding: 10px 12px; }
-/* Hide JSON export everywhere (iPhone master) */
-#btnExportJson { display:none !important; }
-/* Hide tiny hints (can revisit for desktop later) */
-.muted.small, .helptext, .hint, .tinyNote { display:none !important; }
+.toolbar.toolbar-v21 .toolbar-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* iPhone: keep filters side-by-side later; header becomes stacked but grouped */
+@media (max-width: 720px){
+  .toolbar.toolbar-v21{
+    grid-template-columns: 1fr;
+    justify-items:stretch;
+    gap:10px;
+  }
+  .toolbar.toolbar-v21 .toolbar-left{
+    flex-direction:row;
+  }
+  .toolbar.toolbar-v21 .toolbar-center{
+    justify-content:flex-start;
+  }
+  .toolbar.toolbar-v21 .toolbar-right{
+    flex-wrap:wrap;
+  }
+}
+
+/* Neuer Eintrag: grün (Typo bleibt) */
+#btnNew{
+  border-color: rgba(64,196,120,.85) !important;
+  background: linear-gradient(180deg, rgba(64,196,120,.34), rgba(64,196,120,.16)) !important;
+  box-shadow: 0 0 0 1px rgba(64,196,120,.18) inset;
+}
+#btnNew:hover{
+  border-color: rgba(64,196,120,1) !important;
+}
+
+
+
+/* v24 Header-Layout: links Navigation unter Titel, rechts Aktionen (Export oben, Neuer/Clear darunter) */
+.headerGrid-v23{
+  display:grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  grid-template-areas:
+    "left right"
+    "left center";
+  column-gap:14px;
+  row-gap:12px;
+  align-items:start;
+}
+.headerLeft-v23{grid-area:left; display:flex; flex-direction:column; gap:10px;}
+.navStack{display:flex; flex-direction:column; gap:10px;}
+
+/* v25: Nav-Buttons Einheiten/Auswertung immer gleich breit (auch aktiv) */
+.navStack #btnViewEntries,
+.navStack #btnViewEval{
+  width:520px;
+  max-width:520px;
+  box-sizing:border-box;
+}
+@media (max-width: 980px){
+  .navStack #btnViewEntries,
+  .navStack #btnViewEval{width:420px; max-width:420px;}
+}
+@media (max-width: 720px){
+  .navStack #btnViewEntries,
+  .navStack #btnViewEval{width:100%; max-width:100%;}
+}
+/* Export oben rechts */
+.headerRight-v23{grid-area:right; justify-self:end; display:flex; gap:10px; align-items:flex-start; justify-content:flex-end; flex-wrap:wrap;  white-space:nowrap;
+}
+.headerRight-v23 .mini{padding:6px 9px; font-size:9px; font-weight:700; letter-spacing:.15px;}
+
+/* Neuer Eintrag + clear darunter rechtsbündig */
+.headerCenter-v23{grid-area:center; justify-self:end; display:flex; flex-direction:column; gap:10px; align-items:flex-end; justify-content:flex-start;}
+
+@media (max-width: 720px){
+  /* auch auf schmalen Breiten: rechts bleibt rechts */
+  .headerGrid-v23{grid-template-columns: minmax(0,1fr) auto; column-gap:10px;}
+  .headerRight-v23 .mini{padding:6px 9px; font-size:9px; font-weight:700; letter-spacing:.15px;}
+}
 
 </style>
 </head>
 
 <body>
 <header>
-  <div class="row">
-    <h1>Run &amp; Ride</h1>
-    <div class="toolbar">
-      <button class="primary" id="btnNew">+ Neuer Eintrag</button>
-      <button id="btnExportXlsx">Export</button>
-      <button class="danger" id="btnDeleteAll">Clear</button>
+  <div class="headerGrid headerGrid-v23">
+    <div class="headerLeft headerLeft-v23">
+      <h1>Run &amp; Ride v27</h1>
+      <div class="navStack">
+        <button class="ghost" id="btnViewEntries">Einheiten</button>
+        <button class="ghost" id="btnViewEval">Auswertung</button>
+      </div>
     </div>
-    <div class="subtoolbar">
-      <button id="btnJumpEval" title="Zum Auswertungsbereich springen">📊 Auswertung</button>
-      <button id="btnTop" title="Nach oben">↑ Oben</button>
+
+    <div class="headerCenter headerCenter-v23">
+      <button class="primary" id="btnNew">+ Neuer Eintrag</button>
+      <button class="danger" id="btnDeleteAll">clear</button>
+    </div>
+
+    <div class="headerRight headerRight-v23">
+      <button class="mini" id="btnExportXlsx">Export (Excel)</button>
+      <button class="mini" id="btnExportJson">Export (JSON)</button>
     </div>
   </div>
 </header>
 
 <div class="wrap">
   <div class="grid">
-    <section class="card">
+    <section class="card" id="secEntries">
       <h2>Einträge</h2>
 
-      <div class="filters">
+      <div class="filters filtersSticky">
         <div>
           <label for="filterSport">Filter Sportart</label>
           <select id="filterSport">
@@ -314,7 +426,13 @@ header .toolbar button, header .subtoolbar button {
         Spalte <b>Leistungsrelevant</b> (ja/nein oder 1/0) wird beim Import übernommen.
       </div>
 
-      <div class="list" id="list"><div class="muted" style<div class="row" style="margin-bottom:10px">
+      <div class="list" id="list"><div class="muted" style="padding:12px 2px">Keine Einträge (oder Filter zu eng).</div></div>
+    </section>
+
+    <aside class="card" id="secEval">
+      <h2>Auswertung</h2>
+
+      <div class="row" style="margin-bottom:10px">
         <div style="min-width:220px; flex:1">
           <label for="evalScope">Auswertung für</label>
           <select id="evalScope">
@@ -327,91 +445,74 @@ header .toolbar button, header .subtoolbar button {
         </div>
 
         <div style="min-width:220px; flex:1">
-          <label for="evalRange">Zeitraum</label>
-          <select id="evalRange">
-            <option value="1">1 Monat</option>
-            <option value="2">2 Monate</option>
-            <option value="3">3 Monate</option>
-            <option value="4" selected>4 Monate</option>
-            <option value="5">5 Monate</option>
-            <option value="6">6 Monate</option>
-            <option value="8">8 Monate</option>
-            <option value="10">10 Monate</option>
-            <option value="12">12 Monate</option>
-            <option value="ALL">Ganzer Zeitraum</option>
-          </select>
-        </div>
-
-        <!-- Legacy controls kept hidden for stable evaluation logic -->
-        <div style="display:none">
           <label for="evalMode">Zeitraum-Modus</label>
           <select id="evalMode">
-            <option value="WEEKS" selected>Letzte X Wochen</option>
-            <option value="UNITS">Letzte N Einheiten</option>
+            <option value="MONTHS" selected>Monate</option>
           </select>
+        </div>
 
-          <label for="evalRangeWeeks">Wochen</label>
+        <div style="min-width:220px; flex:1">
+          <label for="evalRangeWeeks">Monate</label>
           <select id="evalRangeWeeks">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
             <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
             <option value="8">8</option>
+            <option value="10">10</option>
             <option value="12">12</option>
-            <option value="16">16</option>
-            <option value="20">20</option>
-            <option value="24">24</option>
-            <option value="ALL">Ganzer Zeitraum</option>
-          </select>
-
-          <label for="evalUnits">Einheiten (manuell)</label>
-          <input id="evalUnits" type="number" min="1" step="1" value="30" />
+            <option value="ALL" selected>Ganzer Zeitraum</option>
+</select>
         </div>
-      </div>
- for="evalUnits">Einheiten (manuell)</label>
-          <input id="evalUnits" type="number" min="1" step="1" value="30" disabled="">
-        </div>
-      </div>
+</div>
 
       <div class="kpi" id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitraum)</div></div><div class="box"><div class="v">0</div><div class="k">Minuten gesamt</div></div><div class="box"><div class="v">0</div><div class="k">GA1 Min</div></div><div class="box"><div class="v">0 (0%)</div><div class="k">GA2 Min (GA2%)</div></div><div class="box"><div class="v">0.0</div><div class="k">Kilometer gesamt</div></div><div class="box"><div class="v">0</div><div class="k">Höhenmeter gesamt</div></div></div>
 
       <div class="sectionTitle">
         <span class="badge">Wochen: GA1 unten, GA2 oben · bei „Alle Sportarten“: Lauf+Bike übereinander</span>
         <span class="spacer"></span>
-        <span class="muted small">Linie: nur GA2 · weich/abgerundet</span>
+        <span class="muted small">Linie: nur GA2 Anteil abgerundet</span>
       </div>
       <canvas id="chartWeek" width="990" height="480"></canvas>
 
       <div class="sectionTitle" style="margin-top:12px">
         <span class="badge">Monate (wie Zeitraum)</span>
         <span class="spacer"></span>
-        <span class="muted small">Linie: nur GA2 · Achsen größer</span>
+        
       </div>
       <canvas id="chartMonth" width="990" height="480"></canvas>
 
+      <div id="runOnlyCharts">
       <div class="sectionTitle" style="margin-top:14px">
         <span class="badge">Tempo (Speed, nur „Leistungsrelevant ✓“)</span>
         <span class="spacer"></span>
-        <span class="muted small">Wettkampf/Testlauf als Diamant (nicht verbunden)</span>
+        
       </div>
       <canvas id="chartTempo" width="990" height="480"></canvas>
 
       <div class="sectionTitle" style="margin-top:12px">
         <span class="badge">IV (Speed, nur „Leistungsrelevant ✓“)</span>
         <span class="spacer"></span>
-        <span class="muted small">Top-N pro Monat (Standard: 3)</span>
+        
       </div>
       <canvas id="chartIV" width="990" height="480"></canvas>
 
       <div class="sectionTitle" style="margin-top:12px">
         <span class="badge">10km Niveau (aus „Leistungsrelevant ✓“)</span>
         <span class="spacer"></span>
-        <span class="muted small">Tempolauf-Linie · Wettkampf/Testlauf als Diamant (nicht verbunden)</span>
+        
       </div>
       <canvas id="chart10k" width="990" height="480"></canvas>
+      </div>
+
 
       <div style="margin-top:14px">
         <div class="row" style="margin-bottom:8px">
-          <span class="badge">Wöchentlich</span>
+          <span class="badge">Wochen</span>
         </div>
-        <div class="scrollbox">
+        <div class="scrollbox scrollbox5">
           <table id="tblWeek">
             <thead>
               <tr>
@@ -431,9 +532,9 @@ header .toolbar button, header .subtoolbar button {
 
       <div style="margin-top:14px">
         <div class="row" style="margin-bottom:8px">
-          <span class="badge">Monatlich</span>
+          <span class="badge">Monate</span>
         </div>
-        <div class="scrollbox">
+        <div class="scrollbox scrollbox5">
           <table id="tblMonth">
             <thead>
               <tr>
@@ -610,6 +711,7 @@ header .toolbar button, header .subtoolbar button {
 </dialog>
 
 <script>
+
 (() => {
   "use strict";
 
@@ -619,6 +721,12 @@ header .toolbar button, header .subtoolbar button {
   const AXIS_HEADROOM = 1.15;
 
   const $ = (sel, root=document) => root.querySelector(sel);
+
+  // CSS-Variable für die aktuelle Header-Höhe (damit sticky Filter nicht überlappen)
+  function updateHeaderH(){
+    const h = document.querySelector("header")?.offsetHeight || 0;
+    document.documentElement.style.setProperty("--headerH", h + "px");
+  }
   const el = (tag, attrs={}, children=[]) => {
     const n = document.createElement(tag);
     for (const [k,v] of Object.entries(attrs)) {
@@ -631,7 +739,25 @@ header .toolbar button, header .subtoolbar button {
     return n;
   };
 
-  function round(x, d=0) { const p = 10**d; return Math.round(x*p)/p; }
+  
+  function fmtHoursMinutes(totalMin){
+    if(totalMin == null || totalMin <= 0) return "0 h 0 min";
+    const h = Math.floor(totalMin / 60);
+    const m = Math.round(totalMin % 60);
+    return `${h} h ${m} min`;
+  }
+
+  // Minuten anzeigen; ab 60 min als H:MM h (für KPIs & Achsen)
+  function fmtMinOrHMM(totalMin){
+    if(totalMin == null || !isFinite(totalMin)) return "";
+    const m = Math.round(totalMin);
+    if (m < 60) return `${m} min`;
+    const h = Math.floor(m / 60);
+    const mm = String(m % 60).padStart(2,"0");
+    return `${h}:${mm} h`;
+  }
+
+function round(x, d=0) { const p = 10**d; return Math.round(x*p)/p; }
   function num(v) { if (v == null || v === "") return null; const n = Number(v); return isFinite(n) ? n : null; }
   function str(v) { return v == null ? "" : String(v).trim(); }
   function uid() { return "e_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16); }
@@ -941,6 +1067,7 @@ header .toolbar button, header .subtoolbar button {
     state.entries[idx] = enrich(e);
     save();
     renderAll();
+  updateHeaderH();
   }
 
   function renderList() {
@@ -1215,7 +1342,6 @@ header .toolbar button, header .subtoolbar button {
   const evalScopeEl=$("#evalScope");
   const evalModeEl=$("#evalMode");
   const evalRangeWeeksEl=$("#evalRangeWeeks");
-  const evalUnitsEl=$("#evalUnits");
 
   function dateToMondayISO(iso){
     if(!isISODate(iso)) return "";
@@ -1281,25 +1407,28 @@ header .toolbar button, header .subtoolbar button {
   }
 
   function getAllowedEntriesByMode(scope){
-    const mode = evalModeEl.value;
+    // Modus ist ab v03 fest "MONTHS" (Monate)
     const entries = state.entries
       .map(e => enrich({ ...e }))
       .filter(e => isISODate(e.date))
       .filter(e => matchScope(e, scope))
       .sort((a,b)=> (b.date||"").localeCompare(a.date||""));
 
-    if (mode === "UNITS") {
-      const n = Math.max(1, Math.floor(Number(evalUnitsEl.value) || 30));
-      const slice = entries.slice(0, n);
-      const ids = new Set(slice.map(e => e.id));
-      const weekSet = new Set(slice.map(e => dateToMondayISO(e.date)));
-      return { ids, weekSet };
+    const v = evalRangeWeeksEl.value; // UI-Id bleibt (minimal-invasiv): enthält nun Monate
+    let startISO = null;
+
+    if (v !== "ALL") {
+      const n = Math.max(1, Math.floor(Number(v) || 4));
+      const today = new Date();
+      // Start = erster Tag des Monats (n-1 Monate zurück), inkl. aktuellem Monat
+      const start = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
+      start.setUTCMonth(start.getUTCMonth() - (n - 1));
+      startISO = toISODateUTC(start);
     }
 
-    // weeks
-    const weeks = getWeeksInRange();
-    const weekSet = new Set(weeks);
-    const ids = new Set(entries.filter(e => weekSet.has(dateToMondayISO(e.date))).map(e => e.id));
+    const slice = startISO ? entries.filter(e => e.date >= startISO) : entries;
+    const ids = new Set(slice.map(e => e.id));
+    const weekSet = new Set(slice.map(e => dateToMondayISO(e.date)));
     return { ids, weekSet };
   }
 
@@ -1384,9 +1513,9 @@ header .toolbar button, header .subtoolbar button {
     const kpis=$("#kpis"); kpis.innerHTML="";
     const boxes=[
       {k:"Einheiten (Zeitraum)",v:String(units)},
-      {k:"Minuten gesamt",v:String(Math.round(min))},
-      {k:"GA1 Min",v:String(Math.round(ga1))},
-      {k:"GA2 Min (GA2%)",v:`${Math.round(ga2)} (${Math.round(ga2Percent(ga1,ga2))}%)`},
+      {k:"Minuten gesamt",v:fmtHoursMinutes(min)},
+      {k:"GA1 Min",v:fmtMinOrHMM(ga1)},
+      {k:"GA2 Min (GA2%)",v:`${fmtMinOrHMM(ga2)} (${Math.round(ga2Percent(ga1,ga2))}%)`},
       {k:"Kilometer gesamt",v:round(km,1).toFixed(1)},
       {k:"Höhenmeter gesamt",v:String(Math.round(hm))}
     ];
@@ -1408,7 +1537,11 @@ header .toolbar button, header .subtoolbar button {
   }
 
   // ---------- Charts: Wochen/Monate GA (Stack Run+Bike bei ALL) + weiche GA2-Linie ----------
-  const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
+  const CHART_FONT_SCALE = 1.30;
+  const chartFontPx = (px)=> Math.round(px * CHART_FONT_SCALE);
+
+    const runOnlyBox = document.getElementById("runOnlyCharts");
+const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
   const canvasMonth=$("#chartMonth"); const ctxM=canvasMonth.getContext("2d");
   const canvasTempo=$("#chartTempo"); const ctxT=canvasTempo.getContext("2d");
   const canvasIV=$("#chartIV"); const ctxI=canvasIV.getContext("2d");
@@ -1542,26 +1675,30 @@ header .toolbar button, header .subtoolbar button {
 
     // labels bigger (x/y)
     ctx.fillStyle="rgba(236,243,255,.82)";
-    ctx.font = `${Math.max(12, Math.floor(w/70))}px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
+    ctx.font = `${chartFontPx(Math.max(12, Math.floor(w/70)))}px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
     ctx.textAlign="center";
     ctx.textBaseline="top";
-    for(let i=0;i<series.length;i++){
+    const maxXLabels = 15;
+    const labelEvery = Math.max(1, Math.ceil(series.length / maxXLabels));
+    for(let i=0;i<series.length;i+=labelEvery){
       ctx.fillText(keyLabelFn.label(keys[i]), pad+i*groupW+groupW/2, pad+innerH+4);
     }
-    ctx.textAlign="right";
+    // ensure last label is shown
+    if(series.length>1 && ((series.length-1) % labelEvery) !== 0){
+      const i = series.length-1;
+      ctx.fillText(keyLabelFn.label(keys[i]), pad+i*groupW+groupW/2, pad+innerH+4);
+    }
+    ctx.textAlign="left";
     ctx.textBaseline="top";
-    ctx.fillText(`${Math.round(maxVal)} min`, pad-8, pad);
-  }
+    ctx.fillText(`${fmtMinOrHMM(maxVal)}`, pad+12, pad);
+    ctx.textBaseline="middle";
+    ctx.fillText(`${fmtMinOrHMM(maxVal/2)}`, pad+12, pad+innerH/2);
+}
 
   function buildWeekKeysFromAllowed(scope, allowed){
-    // Wenn Modus=UNITS: weekSet enthält alle Wochen, aber wir wollen eine sortierte Achse
+    // Achse aus den im Zeitraum enthaltenen Wochen (Monate-Filter)
     const keys = Array.from(allowed.weekSet).filter(isISODate).sort((a,b)=>a.localeCompare(b));
-    // Bei WEEKS-Modus: keys sollen exakt "letzte X Wochen" sein (inkl. leerer Wochen),
-    // ansonsten entstehen Lücken. Dafür nehmen wir getWeeksInRange.
-    if(evalModeEl.value==="WEEKS"){
-      return getWeeksInRange();
-    }
-    return keys.length ? keys : getWeeksInRange();
+    return keys;
   }
 
   function buildMonthKeysFromAllowed(scope, allowed){
@@ -1599,7 +1736,7 @@ header .toolbar button, header .subtoolbar button {
     ctx.clearRect(0,0,w,h);
     if(!items.length){
       ctx.fillStyle="rgba(236,243,255,.70)";
-      ctx.font = `${Math.max(12, Math.floor(w/60))}px ${getComputedStyle(document.documentElement).getPropertyValue('--sans')}`;
+      ctx.font = `${chartFontPx(Math.max(12, Math.floor(w/60)))}px ${getComputedStyle(document.documentElement).getPropertyValue('--sans')}`;
       ctx.textAlign="center"; ctx.textBaseline="middle";
       ctx.fillText("Keine relevanten Einheiten im Zeitraum.", w/2, h/2);
       return;
@@ -1676,17 +1813,24 @@ header .toolbar button, header .subtoolbar button {
 
     // labels bigger
     ctx.fillStyle="rgba(236,243,255,.82)";
-    ctx.font = `${Math.max(12, Math.floor(w/70))}px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
-    ctx.textAlign="center";
+    ctx.font = `${chartFontPx(Math.max(12, Math.floor(w/70)))}px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
+    ctx.textAlign="left";
     ctx.textBaseline="top";
     const labelEvery = Math.max(1, Math.ceil(items.length / 6));
+    const xLabelPad = pad + 16; // rechts neben der Y-Achse
     for(let i=0;i<items.length;i+=labelEvery){
       const d = items[i].date.slice(5); // MM-DD
-      ctx.fillText(d, xAt(i), baseY+4);
+      ctx.fillText(d, Math.max(xAt(i), xLabelPad), baseY+4);
     }
+    // Y labels (inside, right next to Y-axis; unit omitted)
+    const yLabelX = pad + 52;
     ctx.textAlign="right"; ctx.textBaseline="top";
-    ctx.fillText(`${maxVal.toFixed(1)} km/h`, pad-8, pad);
-  }
+    ctx.fillText(`${maxVal.toFixed(1)}`, yLabelX, pad);
+    ctx.textBaseline="middle";
+    ctx.fillText(`${((minV+maxVal)/2).toFixed(1)}`, yLabelX, pad+innerH/2);
+    ctx.textBaseline="bottom";
+    ctx.fillText(`${minV.toFixed(1)}`, yLabelX, baseY);
+}
 
   function buildTempoAndIV(scope, allowed){
     const arr = state.entries
@@ -1810,7 +1954,7 @@ header .toolbar button, header .subtoolbar button {
 
     if(!items.length){
       ctx.fillStyle="rgba(236,243,255,.70)";
-      ctx.font = `${Math.max(12, Math.floor(w/60))}px ${getComputedStyle(document.documentElement).getPropertyValue('--sans')}`;
+      ctx.font = `${chartFontPx(Math.max(12, Math.floor(w/60)))}px ${getComputedStyle(document.documentElement).getPropertyValue('--sans')}`;
       ctx.textAlign="center"; ctx.textBaseline="middle";
       ctx.fillText("Keine relevanten Tempo/WK/Testlauf-Einheiten im Zeitraum.", w/2, h/2);
       return;
@@ -1886,23 +2030,29 @@ header .toolbar button, header .subtoolbar button {
 
     // labels (x)
     ctx.fillStyle="rgba(236,243,255,.82)";
-    ctx.font = `${Math.max(12, Math.floor(w/70))}px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
-    ctx.textAlign="center";
+    ctx.font = `${chartFontPx(Math.max(12, Math.floor(w/70)))}px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
+    ctx.textAlign="left";
     ctx.textBaseline="top";
     const labelEvery = Math.max(1, Math.ceil(items.length / 6));
+    const xLabelPad = pad + 16; // rechts neben der Y-Achse
     for(let i=0;i<items.length;i+=labelEvery){
       const d = items[i].date.slice(5); // MM-DD
-      ctx.fillText(d, xAt(i), baseY+4);
+      ctx.fillText(d, Math.max(xAt(i), xLabelPad), baseY+4);
     }
 
     // y-label (best time at top)
-    ctx.textAlign="right"; ctx.textBaseline="top";
-    ctx.fillText(`${fmtMMSSFromSeconds(minV)}`, pad-8, pad);
+    ctx.textAlign="left"; ctx.textBaseline="top";
+    ctx.fillText(`${fmtMMSSFromSeconds(minV)}`, pad+12, pad);
+    ctx.textBaseline="middle";
+    ctx.fillText(`${fmtMMSSFromSeconds((minV+maxVal)/2)}`, pad+12, pad+innerH/2);
     ctx.textBaseline="bottom";
-    ctx.fillText(`${fmtMMSSFromSeconds(maxVal)}`, pad-8, baseY);
+    ctx.fillText(`${fmtMMSSFromSeconds(maxVal)}`, pad+12, baseY);
   }
   function renderCharts(){
     const scope = evalScopeEl.value;
+    const bikeOnly = (scope === "RR" || scope === "MTB" || scope === "BIKE");
+    if (runOnlyBox) runOnlyBox.classList.toggle("hidden", bikeOnly);
+
     const allowed = getAllowedEntriesByMode(scope);
 
     // weekly
@@ -1927,6 +2077,7 @@ header .toolbar button, header .subtoolbar button {
       allowed.ids
     );
 
+    if (!bikeOnly){
     // tempo / iv
     const perf = buildTempoAndIV(scope, allowed);
     drawSpeedChart(ctxT, canvasTempo, perf.tempo, { lineIndices: perf.tempoLineIndices });
@@ -1935,6 +2086,8 @@ header .toolbar button, header .subtoolbar button {
     // 10km Niveau (nur „Leistungsrelevant ✓“; Tempolauf/WK/Testlauf)
     const t10 = build10kTrend(scope, allowed);
     drawTimeChart(ctx10k, canvas10k, t10.points, { lineIndices: t10.lineIndices });
+    }
+
   }
 
   // -------- Excel Import + Merge --------
@@ -2297,8 +2450,47 @@ header .toolbar button, header .subtoolbar button {
     renderCharts();
   }
 
+  
+  // -------- View toggle: Einheiten / Auswertung (Option 1) --------
+  const VIEW_KEY = "runRide.view.v1";
+  const secEntries = $("#secEntries");
+  const secEval = $("#secEval");
+  const btnViewEntries = $("#btnViewEntries");
+  const btnViewEval = $("#btnViewEval");
+
+  function setView(view){
+    const v = (view === "eval") ? "eval" : "entries";
+    localStorage.setItem(VIEW_KEY, v);
+
+    if (secEntries) secEntries.classList.toggle("hidden", v !== "entries");
+    if (secEval) secEval.classList.toggle("hidden", v !== "eval");
+
+    // button styling
+    if (btnViewEntries){
+      btnViewEntries.classList.toggle("primary", v === "entries");
+      btnViewEntries.classList.toggle("ghost", v !== "entries");
+    }
+    if (btnViewEval){
+      btnViewEval.classList.toggle("primary", v === "eval");
+      btnViewEval.classList.toggle("ghost", v !== "eval");
+    }
+
+    // jump to top so you never need to scroll back
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
+    // charts need correct canvas size after becoming visible
+    if (v === "eval"){
+      requestAnimationFrame(() => {
+        try { renderTablesAndKPIs(); renderCharts(); } catch(_) {}
+      });
+    }
+  }
+
+
   // -------- Events --------
   $("#btnNew").addEventListener("click", openNew);
+  $("#btnViewEntries").addEventListener("click", () => setView("entries"));
+  $("#btnViewEval").addEventListener("click", () => setView("eval"));
   $("#btnClose").addEventListener("click", () => dlg.close());
   $("#btnExportJson").addEventListener("click", exportJson);
   $("#btnExportXlsx").addEventListener("click", exportXlsx);
@@ -2317,18 +2509,10 @@ header .toolbar button, header .subtoolbar button {
   });
 
   evalScopeEl.addEventListener("change", renderAll);
-  evalModeEl.addEventListener("change", () => {
-    // UI: weeks vs units
-    const isUnits = evalModeEl.value==="UNITS";
-    $("#evalRangeWeeks").disabled = isUnits;
-    $("#evalUnits").disabled = !isUnits;
+    evalModeEl.addEventListener("change", () => {
     renderAll();
   });
   evalRangeWeeksEl.addEventListener("change", renderAll);
-  evalUnitsEl.addEventListener("input", () => {
-    clearTimeout(evalUnitsEl._t);
-    evalUnitsEl._t=setTimeout(renderAll, 200);
-  });
 
   f_surface.addEventListener("input", () => { delete f_surface.dataset.auto; });
   f_weight.addEventListener("input", () => { delete f_weight.dataset.auto; });
@@ -2411,9 +2595,14 @@ header .toolbar button, header .subtoolbar button {
   load();
   // init mode UI
   $("#evalRangeWeeks").disabled = false;
-  $("#evalUnits").disabled = true;
+  // Grundeinstellung: Ganzer Zeitraum (auch wenn der Browser Form-Werte wiederherstellt)
+  evalRangeWeeksEl.value = "ALL";
   renderAll();
-  window.addEventListener("resize", () => renderCharts());
+
+  // Default view: Einheiten, unless last view saved
+  setView(localStorage.getItem(VIEW_KEY) || "entries");
+
+  window.addEventListener("resize", () => { updateHeaderH(); renderCharts(); });
 
   // Expose for buttons
   window.openNew = openNew;
@@ -2421,65 +2610,6 @@ header .toolbar button, header .subtoolbar button {
   window.openTemplate = openTemplate;
 
 })();
-
-
-  // iPhone master: jump to evaluation and back
-  (function(){
-    let lastScrollY = 0;
-    const btnEval = document.getElementById("btnJumpEval");
-    const btnBack = document.getElementById("btnTop");
-    const evalEl = document.getElementById("eval");
-    if (btnEval) {
-      btnEval.addEventListener("click", () => {
-        lastScrollY = window.scrollY || 0;
-        if (evalEl && evalEl.scrollIntoView) evalEl.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-    }
-    if (btnBack) {
-      btnBack.addEventListener("click", () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
-    }
-  })();
-
-  // iPhone master: months preset -> legacy weeks selector (keeps existing eval logic stable)
-  (function(){
-    const range = document.getElementById("evalRange");
-    const mode = document.getElementById("evalMode");
-    const weeks = document.getElementById("evalRangeWeeks");
-    const units = document.getElementById("evalUnits");
-    if (!range || !weeks) return;
-
-    const opts = Array.from(weeks.options).map(o => o.value);
-
-    const nearest = (w) => {
-      const nums = opts.map(v => (v==="ALL" ? 520 : Number(v))).filter(n => !Number.isNaN(n));
-      if (!nums) return "4";
-      let best = nums[0], bestD = Math.abs(nums[0]-w);
-      for (const n of nums[1:]) {
-        const d = Math.abs(n-w);
-        if (d < bestD) { best = n; bestD = d; }
-      }
-      return String(best === 520 ? "ALL" : best);
-    };
-
-    const apply = () => {
-      if (mode) mode.value = "WEEKS";
-      if (units) units.value = "30";
-      if (range.value === "ALL") {
-        weeks.value = "ALL";
-      } else {
-        const m = Number(range.value);
-        const w = Math.max(1, Math.round(m * 4.345)); // 1 month ~ 4.345 weeks
-        weeks.value = nearest(w);
-      }
-      if (typeof updateEval === "function") updateEval();
-      else if (typeof renderAll === "function") renderAll();
-    };
-
-    range.addEventListener("change", apply);
-    apply();
-  })();
 
 </script>
 

@@ -4,7 +4,7 @@
 <html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Run &amp; Ride v27</title>
+  <title>Run &amp; Ride v29</title>
 
   <!-- XLSX (muss im selben Ordner liegen) -->
   <script src="./xlsx.full.min.js"></script>
@@ -113,20 +113,24 @@
 /* Filter/Suche beim Scrollen sichtbar halten (unter dem sticky Header) */
 .filtersSticky{
   position: sticky;
-  top: calc(var(--headerH, 84px) + 10px);
-  z-index: 200;
+  /* exakt unter der dünnen Header-Linie “hängen” */
+  top: calc(var(--headerH, 84px) + 1px);
+  z-index: 9;
 
-  /* „Deckel“-Effekt: nichts soll dahinter „durchscheinen“ */
-  padding:10px;
-  margin:0 -10px 10px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.08);
+  /* kein Hochschieben/Überlagern durch negative Margins */
+  margin: 0 0 10px;
 
-  /* komplett opak + Inhalte in den Rundungen clippen */
-  background: linear-gradient(180deg, rgb(12,22,52), rgb(8,16,36));
-  box-shadow: 0 10px 24px rgba(0,0,0,.35);
+  padding: 10px;
+  border-radius: 14px;
+
+  /* opak, damit Einträge NICHT sichtbar “durchrollen” */
+  background: rgba(6, 12, 26, .94);
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 8px 22px rgba(0,0,0,.28);
+
+  /* Rundungen als “Clip” */
   overflow: hidden;
-  isolation: isolate;
+  backdrop-filter: blur(8px);
 }
 
 
@@ -352,7 +356,7 @@
 <header>
   <div class="headerGrid headerGrid-v23">
     <div class="headerLeft headerLeft-v23">
-      <h1>Run &amp; Ride v27</h1>
+      <h1>Run &amp; Ride v29</h1>
       <div class="navStack">
         <button class="ghost" id="btnViewEntries">Einheiten</button>
         <button class="ghost" id="btnViewEval">Auswertung</button>

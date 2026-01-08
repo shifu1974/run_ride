@@ -4,7 +4,7 @@
 <html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Run &amp; Ride v29</title>
+  <title>Run &amp; Ride v48</title>
 
   <!-- XLSX (muss im selben Ordner liegen) -->
   <script src="./xlsx.full.min.js"></script>
@@ -55,7 +55,7 @@
       z-index:10;
     }
     header .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;}
-    h1{font-size:18px; margin:0; letter-spacing:.2px}
+    h1{font-size:18px; margin:0 0 0 .5ch; letter-spacing:.2px}
     .wrap{max-width:1280px; margin:0 auto; padding:14px 16px 44px;}
     .grid{display:grid; gap:12px;}
     @media (min-width: 1040px){ .grid{grid-template-columns: 1.15fr .85fr;} }
@@ -321,6 +321,9 @@
 .navStack{display:flex; flex-direction:column; gap:10px;}
 
 /* v25: Nav-Buttons Einheiten/Auswertung immer gleich breit (auch aktiv) */
+    /* v31: Nav-Buttons linksbündig */
+    #btnViewEntries, #btnViewEval{ text-align:left; padding-left:14px; font-size:125%; }
+
 .navStack #btnViewEntries,
 .navStack #btnViewEval{
   width:520px;
@@ -335,6 +338,91 @@
   .navStack #btnViewEntries,
   .navStack #btnViewEval{width:100%; max-width:100%;}
 }
+
+/* v34: Einheiten-Filter im Header (unterhalb der Header-Grid-Zeile, ohne Buttons nach unten zu drücken) */
+.headerEntriesFiltersHost{ margin-top:10px; }
+.headerEntriesFiltersHost #entriesFilters{ margin-top:0; }
+.headerEntriesFiltersHost #entriesFilters > div label{ display:none; }
+
+
+/* v37: Export-Menü nicht clippen (Sticky-Container darf überlaufen) */
+.filtersSticky{ overflow: visible; }
+
+/* v36: Header Import/Export + Export-Menü */
+
+/* v39: Export-Menü sauber unter Export-Button verankern */
+.exportWrap{ position:relative; display:inline-block; }
+.exportWrap .menu{
+  top: calc(100% + 8px);
+  right: 0;
+  left: auto;
+  min-width: 180px;
+  max-width: 240px;
+}
+
+
+/* v38: Export-Menü vertikal stapeln */
+.menu{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.headerRight-v23{ position:relative; }
+.menu{
+  position:absolute;
+  top:36px;
+  right:0;
+  min-width:170px;
+  background: rgba(10,18,35,.96);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.35);
+  padding:6px;
+  z-index: 50;
+}
+.menuItem{
+  width:100%;
+  text-align:left;
+  padding:10px 12px;
+  border-radius:10px;
+  border:0;
+  background: transparent;
+  color: var(--fg, #eaf2ff);
+  font-weight:700;
+  cursor:pointer;
+}
+.menuItem:hover{ background: rgba(255,255,255,.08); }
+/* v39: Menü-Items umbrechen */
+.menuItem{ white-space: normal; }
+
+
+/* v38: Einheitliche Button-Höhe und Schriftgröße */
+
+/* v39: Einheiten/Auswertung exakt wie Neue Einheit/clear */
+#btnViewEntries, #btnViewEval, #btnNew, #btnClear{
+  height: 56px;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+#btnViewEntries, #btnViewEval{
+  font-size: 1.05rem;
+  height: 52px;
+}
+#btnNew, #btnClear{
+  height: 52px;
+}
+
+
+/* v39: Titel weiter rechts */
+.headerLeft-v23 h1{ margin-left:14px; }
+
+/* v38: Titel minimal nach rechts */
+.headerLeft-v23 h1{
+  margin-left: 6px;
+}
+
 /* Export oben rechts */
 .headerRight-v23{grid-area:right; justify-self:end; display:flex; gap:10px; align-items:flex-start; justify-content:flex-end; flex-wrap:wrap;  white-space:nowrap;
 }
@@ -349,6 +437,150 @@
   .headerRight-v23 .mini{padding:6px 9px; font-size:9px; font-weight:700; letter-spacing:.15px;}
 }
 
+
+/* v43: Nur Textgröße angleichen (Referenz: clear) */
+#btnViewEntries,
+#btnViewEval,
+#btnNew{
+  font-size: 1rem !important;
+}
+
+
+/* v44: Vier Buttons auf Basis-Styles zurücksetzen (Ballast abwerfen) */
+#btnViewEntries,
+#btnViewEval,
+#btnNew,
+#btnDeleteAll{
+  font-size: revert !important;
+  font-weight: revert !important;
+  height: revert !important;
+  line-height: revert !important;
+  padding: revert !important;
+  display: revert !important;
+  align-items: revert !important;
+}
+
+
+/* v45: Header als 2-Zeilen-Grid (Excel-Zellen-Prinzip) */
+.headerGrid-v23{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 18px;
+  row-gap: 12px;
+  align-items: start;
+}
+.headerLeft-v23{ display: contents; } /* h1 + navStack werden direkte Grid-Items */
+.headerRight-v23{
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+}
+.headerLeft-v23 h1{
+  grid-column: 1;
+  grid-row: 1;
+}
+.headerLeft-v23 .navStack{
+  grid-column: 1;
+  grid-row: 2;
+}
+.headerCenter-v23{
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: end;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* v45: Option A – mehr vertikale Luft (Textgröße bleibt) */
+#btnViewEntries,
+#btnViewEval,
+#btnNew,
+#btnDeleteAll{
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+
+
+/* v46: Vier Hauptbuttons – Laufweite + fett */
+#btnViewEntries,
+#btnViewEval,
+#btnNew,
+#btnDeleteAll{
+  letter-spacing: 0.2em;
+  font-weight: 800;
+}
+
+/* v46: Auswertung – Filter kompakt (wie Einheiten) */
+#evalFilters .label,
+#evalFilters label{
+  display:none !important;
+}
+#evalFilters .row,
+#evalFilters .filterRow{
+  display:grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* v46: Auswertung – Filter kompakt (Fallback-Selektoren) */
+.evalFilters label,
+.evalFilters .label,
+#analysisFilters label,
+#analysisFilters .label{
+  display:none !important;
+}
+.evalFilters .row,
+.evalFilters .filterRow,
+#analysisFilters .row,
+#analysisFilters .filterRow{
+  display:grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+
+/* v47: Buttons final feinjustiert */
+#btnViewEntries,
+#btnViewEval,
+#btnNew,
+#btnDeleteAll{
+  font-weight: 800;
+  letter-spacing: 0.1em; /* halbe Laufweite */
+  font-size: 1.1rem;    /* +10% */
+}
+
+/* v47: Auswertung Filter nebeneinander */
+#evalFilters .row,
+#analysisFilters .row,
+.evalFilters .row{
+  display:grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* v47: Auswertung Labels entfernen */
+#evalFilters label,
+#analysisFilters label,
+.evalFilters label{
+  display:none !important;
+}
+
+
+/* v48: Buttons FINAL – Typo/Box-Modell 1:1 aus v29 (nur Größe/Weight/Spacing/Padding/Radius) */
+#btnViewEntries,
+#btnViewEval,
+#btnNew,
+#btnDeleteAll{
+  font-weight: 800 !important;
+  letter-spacing: .2px !important;
+  padding: 9px 12px !important;
+  border-radius: 12px !important;
+  font-size: 15px !important;
+  line-height: 1.1 !important;
+}
+
 </style>
 </head>
 
@@ -356,44 +588,46 @@
 <header>
   <div class="headerGrid headerGrid-v23">
     <div class="headerLeft headerLeft-v23">
-      <h1>Run &amp; Ride v29</h1>
+      <h1>Run &amp; Ride v48</h1>
       <div class="navStack">
-        <button class="ghost" id="btnViewEntries">Einheiten</button>
-        <button class="ghost" id="btnViewEval">Auswertung</button>
+        <button class="ghost btnFinal" id="btnViewEntries">Einheiten</button>
+        <button class="ghost btnFinal" id="btnViewEval">Auswertung</button>
       </div>
-    </div>
+</div>
 
     <div class="headerCenter headerCenter-v23">
-      <button class="primary" id="btnNew">+ Neuer Eintrag</button>
-      <button class="danger" id="btnDeleteAll">clear</button>
+      <button class="primary btnFinal" id="btnNew">Neue Einheit</button>
+      <button class="danger btnFinal" id="btnDeleteAll">clear</button>
     </div>
 
     <div class="headerRight headerRight-v23">
-      <button class="mini" id="btnExportXlsx">Export (Excel)</button>
-      <button class="mini" id="btnExportJson">Export (JSON)</button>
+      <button class="mini" id="btnExportXlsx">Import</button>
+      <span class="exportWrap" id="exportWrap"><button class="mini" id="btnExportJson">Export</button>
+      <div class="menu" id="exportMenu" style="display:none">
+        <button class="menuItem" id="btnExportMenuXlsx" type="button">Export Excel</button>
+        <button class="menuItem" id="btnExportMenuJson" type="button">Export JSON</button>
+      </div></span>
     </div>
   </div>
+  <div id="headerEntriesFilters" class="headerEntriesFiltersHost"></div>
 </header>
 
 <div class="wrap">
   <div class="grid">
     <section class="card" id="secEntries">
-      <h2>Einträge</h2>
-
-      <div class="filters filtersSticky">
+<div id="entriesFiltersHome"></div>
+      <div class="filters filtersSticky" id="entriesFilters">
         <div>
-          <label for="filterSport">Filter Sportart</label>
-          <select id="filterSport">
-            <option value="">Alle</option>
+<select id="filterSport">
+            <option value="">Alle Sportarten</option>
             <option value="Lauf">Lauf</option>
             <option value="Rennrad">Rennrad</option>
             <option value="MTB">MTB</option>
           </select>
         </div>
         <div>
-          <label for="filterType">Filter Trainingsart</label>
-          <select id="filterType">
-            <option value="">Alle</option>
+<select id="filterType">
+            <option value="">Alle Trainingsarten</option>
             <option value="GA1">GA1</option>
             <option value="GA2">GA2</option>
             <option value="LDL">LDL</option>
@@ -406,8 +640,7 @@
           </select>
         </div>
         <div>
-          <label for="searchText">Suche (Name/Notizen/Partner)</label>
-          <input id="searchText" placeholder="z.B. &#39;Park&#39;, &#39;Jan&#39; …">
+<input id="searchText" placeholder="Suche (Name/Notiz)">
         </div>
       </div>
 
@@ -416,29 +649,22 @@
         <span class="badge"><span>Gefiltert:</span> <span id="countShown" class="pill">0</span></span>
         <span class="spacer"></span>
 
-        <div class="fileRow">
+        <div class="fileRow" style="display:none">
           <input type="file" id="fileXlsx" accept=".xlsx">
           <button id="btnImport">Excel-Import</button>
-          <span class="muted" id="importMsg">Import fehlgeschlagen.</span>
-        </div>
+          <span class="muted" id="importMsg" style="display:none"></span>
+</div>
       </div>
 
-      <div class="muted small" style="margin-top:8px; line-height:1.35">
-        Import-Duplikate (Datum + Sport + Strecke ±5%) werden <b>gemerged</b>:
-        <b>Excel leer → App bleibt</b>, <b>bei Widerspruch gewinnt Excel</b>.
-        <br>
-        Spalte <b>Leistungsrelevant</b> (ja/nein oder 1/0) wird beim Import übernommen.
-      </div>
+      <div class="muted small" style="margin-top:8px; line-height:1.35" style="display:none"></div>
 
       <div class="list" id="list"><div class="muted" style="padding:12px 2px">Keine Einträge (oder Filter zu eng).</div></div>
     </section>
 
     <aside class="card" id="secEval">
-      <h2>Auswertung</h2>
-
       <div class="row" style="margin-bottom:10px">
         <div style="min-width:220px; flex:1">
-          <label for="evalScope">Auswertung für</label>
+          <label for="evalScope">Sportart</label>
           <select id="evalScope">
             <option value="ALL">Alle Sportarten</option>
             <option value="RUN">Laufen</option>
@@ -447,42 +673,34 @@
             <option value="BIKE">Rennrad + MTB</option>
           </select>
         </div>
-
         <div style="min-width:220px; flex:1">
-          <label for="evalMode">Zeitraum-Modus</label>
-          <select id="evalMode">
-            <option value="MONTHS" selected>Monate</option>
-          </select>
-        </div>
-
-        <div style="min-width:220px; flex:1">
-          <label for="evalRangeWeeks">Monate</label>
+          <label for="evalRangeWeeks">Zeitraum</label>
           <select id="evalRangeWeeks">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="8">8</option>
-            <option value="10">10</option>
-            <option value="12">12</option>
+            <option value="1">1 Monat</option>
+            <option value="2">2 Monate</option>
+            <option value="3">3 Monate</option>
+            <option value="4">4 Monate</option>
+            <option value="5">5 Monate</option>
+            <option value="6">6 Monate</option>
+            <option value="8">8 Monate</option>
+            <option value="10">10 Monate</option>
+            <option value="12">12 Monate</option>
             <option value="ALL" selected>Ganzer Zeitraum</option>
 </select>
         </div>
 </div>
 
-      <div class="kpi" id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitraum)</div></div><div class="box"><div class="v">0</div><div class="k">Minuten gesamt</div></div><div class="box"><div class="v">0</div><div class="k">GA1 Min</div></div><div class="box"><div class="v">0 (0%)</div><div class="k">GA2 Min (GA2%)</div></div><div class="box"><div class="v">0.0</div><div class="k">Kilometer gesamt</div></div><div class="box"><div class="v">0</div><div class="k">Höhenmeter gesamt</div></div></div>
+      <div class="kpi" id="kpis"><div class="box"><div class="v">0</div><div class="k">Einheiten (Zeitraum)</div></div><div class="box"><div class="v">0</div><div class="k"></div></div><div class="box"><div class="v">0</div><div class="k">GA1</div></div><div class="box"><div class="v">0 (0%)</div><div class="k">GA2</div></div><div class="box"><div class="v">0.0</div><div class="k">Kilometer</div></div><div class="box"><div class="v">0</div><div class="k">Höhenmeter</div></div></div>
 
       <div class="sectionTitle">
-        <span class="badge">Wochen: GA1 unten, GA2 oben · bei „Alle Sportarten“: Lauf+Bike übereinander</span>
         <span class="spacer"></span>
-        <span class="muted small">Linie: nur GA2 Anteil abgerundet</span>
+        <span class="muted small">Linie zeigt GA2 Anteil</span>
       </div>
-      <canvas id="chartWeek" width="990" height="480"></canvas>
+      <div class="sectionTitle"><span class="badge">Wochenauswertung</span></div>
+<canvas id="chartWeek" width="990" height="480"></canvas>
 
       <div class="sectionTitle" style="margin-top:12px">
-        <span class="badge">Monate (wie Zeitraum)</span>
+        <span class="badge">Monatsauswertung</span>
         <span class="spacer"></span>
         
       </div>
@@ -490,21 +708,21 @@
 
       <div id="runOnlyCharts">
       <div class="sectionTitle" style="margin-top:14px">
-        <span class="badge">Tempo (Speed, nur „Leistungsrelevant ✓“)</span>
+        <span class="badge">Speed Tempoläufe in km/h</span>
         <span class="spacer"></span>
         
       </div>
       <canvas id="chartTempo" width="990" height="480"></canvas>
 
       <div class="sectionTitle" style="margin-top:12px">
-        <span class="badge">IV (Speed, nur „Leistungsrelevant ✓“)</span>
+        <span class="badge">Speed Intervalläufe in km/h</span>
         <span class="spacer"></span>
         
       </div>
       <canvas id="chartIV" width="990" height="480"></canvas>
 
       <div class="sectionTitle" style="margin-top:12px">
-        <span class="badge">10km Niveau (aus „Leistungsrelevant ✓“)</span>
+        <span class="badge">10km Niveau leistungsrelevanter Einheiten</span>
         <span class="spacer"></span>
         
       </div>
@@ -522,11 +740,11 @@
               <tr>
                 <th>Woche</th>
                 <th class="right">Einheiten</th>
-                <th class="right">Min gesamt</th>
+                <th class="right">Min</th>
                 <th class="right">km</th>
                 <th class="right">Hm</th>
-                <th class="right">GA1 Min</th>
-                <th class="right">GA2 Min (GA2%)</th>
+                <th class="right">GA1</th>
+                <th class="right">GA2</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -544,11 +762,11 @@
               <tr>
                 <th>Monat</th>
                 <th class="right">Einheiten</th>
-                <th class="right">Min gesamt</th>
+                <th class="right">Min</th>
                 <th class="right">km</th>
                 <th class="right">Hm</th>
-                <th class="right">GA1 Min</th>
-                <th class="right">GA2 Min (GA2%)</th>
+                <th class="right">GA1</th>
+                <th class="right">GA2</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -751,7 +969,7 @@
     return `${h} h ${m} min`;
   }
 
-  // Minuten anzeigen; ab 60 min als H:MM h (für KPIs & Achsen)
+  //  anzeigen; ab 60 min als H:MM h (für KPIs & Achsen)
   function fmtMinOrHMM(totalMin){
     if(totalMin == null || !isFinite(totalMin)) return "";
     const m = Math.round(totalMin);
@@ -1344,8 +1562,7 @@ function round(x, d=0) { const p = 10**d; return Math.round(x*p)/p; }
 
   // -------- Auswertung / Zeitraum --------
   const evalScopeEl=$("#evalScope");
-  const evalModeEl=$("#evalMode");
-  const evalRangeWeeksEl=$("#evalRangeWeeks");
+const evalRangeWeeksEl=$("#evalRangeWeeks");
 
   function dateToMondayISO(iso){
     if(!isISODate(iso)) return "";
@@ -1517,11 +1734,11 @@ function round(x, d=0) { const p = 10**d; return Math.round(x*p)/p; }
     const kpis=$("#kpis"); kpis.innerHTML="";
     const boxes=[
       {k:"Einheiten (Zeitraum)",v:String(units)},
-      {k:"Minuten gesamt",v:fmtHoursMinutes(min)},
-      {k:"GA1 Min",v:fmtMinOrHMM(ga1)},
-      {k:"GA2 Min (GA2%)",v:`${fmtMinOrHMM(ga2)} (${Math.round(ga2Percent(ga1,ga2))}%)`},
-      {k:"Kilometer gesamt",v:round(km,1).toFixed(1)},
-      {k:"Höhenmeter gesamt",v:String(Math.round(hm))}
+      {k:"",v:fmtHoursMinutes(min)},
+      {k:"GA1",v:fmtMinOrHMM(ga1)},
+      {k:"GA2",v:`${fmtMinOrHMM(ga2)} (${Math.round(ga2Percent(ga1,ga2))}%)`},
+      {k:"Kilometer",v:round(km,1).toFixed(1)},
+      {k:"Höhenmeter",v:String(Math.round(hm))}
     ];
     for(const b of boxes){
       kpis.appendChild(el("div",{class:"box"},[
@@ -1886,7 +2103,7 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
   }
 
 
-  // ---------- 10km Niveau (aus „Leistungsrelevant ✓“) ----------
+  // ---------- 10km Niveau leistungsrelevanter Einheiten ----------
   // Idee: aus relevanten Tempo/WK/Testlauf-Einheiten eine äquivalente 10-km-Zeit ableiten (Riegel),
   // dann als Zeit-Trend darstellen (kleiner = besser). IV wird bewusst NICHT genutzt (nicht durchlaufend).
   function toSecondsFromEntry(e){
@@ -2478,6 +2695,20 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
       btnViewEval.classList.toggle("primary", v === "eval");
       btnViewEval.classList.toggle("ghost", v !== "eval");
     }
+    // v33: Einheiten-Filter in den Header übernehmen (Option A), keine Duplikate
+    const headerFilters = $("#headerEntriesFilters");
+    const filtersHome = $("#entriesFiltersHome");
+    const entriesFilters = $("#entriesFilters");
+    if (headerFilters && filtersHome && entriesFilters){
+      if (v === "entries"){
+        headerFilters.appendChild(entriesFilters);
+        entriesFilters.classList.remove("filtersSticky");
+      } else {
+        filtersHome.insertAdjacentElement("afterend", entriesFilters);
+        entriesFilters.classList.add("filtersSticky");
+      }
+    }
+
 
     // jump to top so you never need to scroll back
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -2496,8 +2727,22 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
   $("#btnViewEntries").addEventListener("click", () => setView("entries"));
   $("#btnViewEval").addEventListener("click", () => setView("eval"));
   $("#btnClose").addEventListener("click", () => dlg.close());
-  $("#btnExportJson").addEventListener("click", exportJson);
-  $("#btnExportXlsx").addEventListener("click", exportXlsx);
+  // v36: Header-Buttons umverdrahtet
+  $("#btnExportXlsx").addEventListener("click", () => { fileXlsx.click(); });
+  $("#btnExportJson").addEventListener("click", (e) => {
+    e.preventDefault();
+    const m=$("#exportMenu");
+    m.style.display = (m.style.display==="none" || !m.style.display) ? "block" : "none";
+  });
+  $("#btnExportMenuJson").addEventListener("click", () => { $("#exportMenu").style.display="none"; exportJson(); });
+  $("#btnExportMenuXlsx").addEventListener("click", () => { $("#exportMenu").style.display="none"; exportXlsx(); });
+  document.addEventListener("click", (ev) => {
+    const menu=$("#exportMenu");
+    const btn=$("#btnExportJson");
+    if(menu && menu.style.display==="block" && !menu.contains(ev.target) && ev.target!==btn){
+      menu.style.display="none";
+    }
+  });
 
   $("#btnDeleteAll").addEventListener("click", () => {
     if(!confirm("Wirklich ALLE Einträge löschen?")) return;
@@ -2513,10 +2758,7 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
   });
 
   evalScopeEl.addEventListener("change", renderAll);
-    evalModeEl.addEventListener("change", () => {
-    renderAll();
-  });
-  evalRangeWeeksEl.addEventListener("change", renderAll);
+evalRangeWeeksEl.addEventListener("change", renderAll);
 
   f_surface.addEventListener("input", () => { delete f_surface.dataset.auto; });
   f_weight.addEventListener("input", () => { delete f_weight.dataset.auto; });
@@ -2573,6 +2815,12 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
     f_perf_locked.value = "";
     applyNewEntryDefaults();
     dlgTitle.textContent="Als Vorlage (neuer Eintrag)";
+  });
+
+  // v36: Auto-Import nach Dateiauswahl
+  fileXlsx.addEventListener("change", () => {
+    const f=fileXlsx.files?.[0];
+    if(f) $("#btnImport").click();
   });
 
   // Import

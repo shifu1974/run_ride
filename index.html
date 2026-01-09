@@ -4,7 +4,7 @@
 <html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Run &amp; Ride v48</title>
+  <title>Run &amp; Ride v87</title>
 
   <!-- XLSX (muss im selben Ordner liegen) -->
   <script src="./xlsx.full.min.js"></script>
@@ -12,15 +12,15 @@
   <style>
     :root{
       /* sportlicher, freundlicher Blau-Look */
-      --bg1:#06101f;
-      --bg2:#071a35;
-      --bg3:#0a2a57;
+      --bg1:#d6d1c8;
+      --bg2:#d6d1c8;
+      --bg3:#d6d1c8;
 
       --card: rgba(10, 18, 40, .72);
       --card2: rgba(10, 18, 40, .55);
       --muted:#b8c6e6;
       --text:#ecf3ff;
-      --line: rgba(255,255,255,.12);
+      --line: rgba(0,0,0,.14);
       --accent:#6aa6ff;
       --accent2:#8bc0ff;
       --danger:#ff5f6a;
@@ -38,11 +38,7 @@
       margin:0;
       font-family:var(--sans);
       color:var(--text);
-      background:
-        radial-gradient(900px 520px at 12% 12%, rgba(106,166,255,.22), transparent 60%),
-        radial-gradient(700px 520px at 85% 10%, rgba(60,140,255,.16), transparent 55%),
-        radial-gradient(900px 650px at 60% 95%, rgba(18,120,255,.12), transparent 58%),
-        linear-gradient(180deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+      background: var(--bg1);
       min-height:100vh;
     }
 
@@ -50,9 +46,7 @@
       padding:18px 16px;
       border-bottom:1px solid var(--line);
       position:sticky; top:0;
-      background: rgba(6,16,31,.82);
-      backdrop-filter: blur(10px);
-      z-index:10;
+      background: rgba(6,12,26,.65);      z-index:10;
     }
     header .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;}
     h1{font-size:18px; margin:0 0 0 .5ch; letter-spacing:.2px}
@@ -428,6 +422,18 @@
 }
 .headerRight-v23 .mini{padding:6px 9px; font-size:9px; font-weight:700; letter-spacing:.15px;}
 
+
+
+/* v66: Import/Export im Header – gleiche Hintergrundfarbe wie Dropdowns */
+#btnExportXlsx, #btnExportJson{
+  background: rgba(6,12,26,.65) !important;
+  border-color: rgba(255,255,255,.12) !important;
+  box-shadow: none !important;
+}
+#btnExportXlsx:hover, #btnExportJson:hover{
+  border-color: rgba(255,255,255,.22) !important;
+}
+
 /* Neuer Eintrag + clear darunter rechtsbündig */
 .headerCenter-v23{grid-area:center; justify-self:end; display:flex; flex-direction:column; gap:10px; align-items:flex-end; justify-content:flex-start;}
 
@@ -581,6 +587,270 @@
   line-height: 1.1 !important;
 }
 
+
+/* v57: Auswertung – Filter optisch in den Header integrieren */
+#headerEvalFilters #evalFilters{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:14px;
+}
+#headerEvalFilters #evalFilters > div{
+  min-width: 0 !important;
+}
+
+
+/* v58: Auswertung – äußeren Card-Rahmen der Auswertungsfläche optisch entfernen (Option A) */
+#secEval.card{
+  border: none !important;
+  box-shadow: none !important;
+  background: rgba(10, 25, 45, 0.55) !important; /* etwas dunkler als Seitenhintergrund */
+}
+/* optional: weniger sichtbarer Rand durch Padding/Radius */
+#secEval.card{
+  border-radius: 26px !important;
+}
+
+
+/* v59: Auswertung – Verlauf entfernen (ruhige Fläche, keine verschachtelte Gradient-Wirkung) */
+#secEval.card{
+  background: linear-gradient(180deg, rgba(12,22,52,.72), rgba(8,16,36,.50)) !important;
+}
+
+
+/* v67: Header-Farbgleichheit – Import/Export + Header-Dropdowns übernehmen exakt Header-Hintergrund */
+header #btnExportXlsx,
+header #btnExportJson{
+  background: transparent !important;
+  border-color: rgba(255,255,255,.14) !important;
+  box-shadow: none !important;
+}
+header #evalFilters select,
+header #entriesFilters select{
+  background: transparent !important;
+}
+
+
+/* v70: inner Auswertungsfläche exakt wie äußerer Card-Container */
+#secEval .kpi,
+#secEval .sectionTitle,
+#secEval canvas,
+#secEval .scrollbox,
+#secEval .scrollbox5{
+  background: transparent !important;
+}
+
+
+/* v71: Auswertung – Flächencontainer optisch wie äußerer heller Rahmen (Seitenhintergrund) */
+#secEval.card{
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.05)), var(--bg1) !important;
+/* exakt wie Seitenhintergrund */
+}
+
+/* Lesbarkeit auf hellem Hintergrund sicherstellen (nur innerhalb Auswertung) */
+#secEval{
+  color: #0b1c3b !important;
+}
+#secEval .muted,
+#secEval .hint,
+#secEval .pill,
+#secEval th,
+#secEval td,
+#secEval .badge{
+  color: rgba(11, 28, 59, .78) !important;
+}
+#secEval th{
+  color: rgba(11, 28, 59, .92) !important;
+}
+
+/* KPI-Boxen dezent hell, damit sie auf hellem Hintergrund sichtbar bleiben */
+#secEval .kpi .box{
+  background: rgba(255,255,255,.45) !important;
+  border-color: rgba(11, 28, 59, .14) !important;
+}
+#secEval .kpi .box .v{
+  color: rgba(11, 28, 59, .95) !important;
+}
+#secEval .kpi .box .k{
+  color: rgba(11, 28, 59, .70) !important;
+}
+
+/* Tabellen/Scrollboxen auf hell */
+#secEval .scrollbox{
+  border-color: rgba(11, 28, 59, .10) !important;
+}
+#secEval .scrollbox table thead th{
+  background: rgba(255,255,255,.65) !important;
+  backdrop-filter: blur(6px);
+}
+#secEval canvas{
+  background: rgba(255,255,255,.55) !important;
+  border-color: rgba(11, 28, 59, .14) !important;
+}
+
+
+/* v74: Innen-Text (KPI & Labels) weniger dunkel – Zahlen dunkler, Labels heller (nur Schritt 1) */
+#secEval .kpi .box .v{
+  color: rgba(38, 52, 78, .88) !important; /* Zahlen: dunkles Grau-Blau */
+}
+#secEval .kpi .box .k{
+  color: rgba(38, 52, 78, .62) !important; /* Labels: heller */
+}
+/* Tabellen & Hinweise im Auswertungsbereich ebenfalls nicht zu dunkel */
+#secEval .badge,
+#secEval .muted,
+#secEval .hint,
+#secEval th,
+#secEval td{
+  color: rgba(38, 52, 78, .64) !important;
+}
+#secEval th{
+  color: rgba(38, 52, 78, .74) !important;
+}
+/* Hinweistext rechts („Linie zeigt GA2 Anteil“) */
+#secEval .sectionTitle,
+#secEval .sectionTitle .muted,
+#secEval .sectionTitle span{
+  color: rgba(38, 52, 78, .62) !important;
+}
+
+
+/* v75 Schritt 1: Suchfenster (Einheiten) optisch wie die Dropdown-Felder */
+#entriesFilters #searchText{
+  background: rgba(255,255,255,.05) !important;
+  border-color: rgba(255,255,255,.12) !important;
+  color: var(--text) !important;
+}
+#entriesFilters #searchText::placeholder{
+  color: rgba(236,243,255,.55) !important;
+}
+
+
+/* v76: Suchfenster im Header exakt wie Filter-Dropdowns ("Alle Sportarten") */
+#entriesFilters #searchText{
+  background: rgba(6,12,26,.65) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  color: var(--text) !important;
+}
+#entriesFilters #searchText::placeholder{
+  color: rgba(236,243,255,.55) !important;
+}
+
+
+/* v77: Suchfeld im Header vollständig angleichen – keine Absetzung vom Header */
+#entriesFilters #searchText{
+  background: inherit !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+}
+#entriesFilters #searchText::placeholder{
+  color: rgba(236,243,255,.55) !important;
+}
+
+
+/* v78: Einheiten – Container und Rahmen unter dem Header angleichen (keine Absetzung) */
+#secEntries.card{
+  background: var(--bg1) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* innere Listenelemente weiterhin leicht strukturiert */
+#secEntries .item{
+  border-bottom: 1px solid rgba(255,255,255,.08) !important;
+}
+
+
+/* v79: Transfer – Einheiten-Listencontainer exakt wie KPI-Boxen aus Auswertung */
+#secEntries.card{
+  background: rgba(255,255,255,.30) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+
+/* v80: Transfer korrekt (inkl. Überlagerungen) – Einheiten-Container exakt wie KPI-Boxen (rgba(255,255,255,.45))
+   + passende dunkle Textfarben für Lesbarkeit auf heller Fläche */
+#secEntries.card{
+  background: rgba(255,255,255,.45) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Einheiten-Liste: Textfarben wie im hellen KPI-Look (Zahlen/Titel dunkler, Meta heller) */
+#secEntries .item .title{
+  color: rgba(38, 52, 78, .88) !important;
+}
+#secEntries .item .sub{
+  color: rgba(38, 52, 78, .62) !important;
+}
+#secEntries .item .date,
+#secEntries .item .nameunder{
+  color: rgba(38, 52, 78, .72) !important;
+}
+#secEntries .badge{
+  color: rgba(38, 52, 78, .64) !important;
+  background: rgba(255,255,255,.22) !important;
+  border-color: rgba(11, 28, 59, .14) !important;
+}
+#secEntries .pill{
+  color: rgba(38, 52, 78, .74) !important;
+}
+
+/* Trennlinien auf heller Fläche */
+#secEntries .list{ border-top: 1px solid rgba(11, 28, 59, .12) !important; }
+#secEntries .item{ border-bottom: 1px solid rgba(11, 28, 59, .10) !important; }
+
+
+/* v81: Ghost Button für 'Bearbeiten' */
+#secEntries .btn-edit,
+#secEntries .edit,
+#secEntries button.edit{
+  background: transparent !important;
+  color: rgba(38,52,78,.85) !important;
+  border: 1px solid rgba(38,52,78,.35) !important;
+  box-shadow: none !important;
+  padding: 8px 14px !important;
+  border-radius: 14px !important;
+  font-weight: 600 !important;
+}
+
+#secEntries .btn-edit:hover,
+#secEntries .edit:hover,
+#secEntries button.edit:hover{
+  background: rgba(255,255,255,.18) !important;
+  border-color: rgba(38,52,78,.55) !important;
+}
+
+
+/* v86: äußerster Rahmen (Seitenhintergrund) = gleiche Farbe wie Einheiten-Container (kein Kontrast mehr) */
+/* Ziel-Farbwert entspricht dem bisherigen Rendering von rgba(255,255,255,.45) auf #d6d1c8 -> #e8e6e1 */
+:root{
+  --bg1:#e8e6e1;
+  --bg2:#e8e6e1;
+  --bg3:#e8e6e1;
+}
+
+/* Container-Farbe auf Solid setzen, damit durch die BG-Änderung kein neuer Kontrast entsteht */
+#secEntries.card{
+  background: var(--bg1) !important;
+}
+
+
+/* v87: Bearbeiten-Buttons exakt in Textfarbe der Titel (z.B. 'Ines') */
+#secEntries .item .actions button,
+#secEntries .btn-edit,
+#secEntries button.edit{
+  background: transparent !important;
+  color: rgba(38,52,78,.90) !important; /* gleiche Farbe wie Titel */
+  border: 1px solid rgba(38,52,78,.35) !important;
+  box-shadow: none !important;
+}
+
+#secEntries .item .actions button:hover{
+  background: rgba(38,52,78,.06) !important;
+}
+
 </style>
 </head>
 
@@ -588,7 +858,7 @@
 <header>
   <div class="headerGrid headerGrid-v23">
     <div class="headerLeft headerLeft-v23">
-      <h1>Run &amp; Ride v48</h1>
+      <h1>Run &amp; Ride v87</h1>
       <div class="navStack">
         <button class="ghost btnFinal" id="btnViewEntries">Einheiten</button>
         <button class="ghost btnFinal" id="btnViewEval">Auswertung</button>
@@ -610,6 +880,7 @@
     </div>
   </div>
   <div id="headerEntriesFilters" class="headerEntriesFiltersHost"></div>
+  <div id="headerEvalFilters" class="headerEntriesFiltersHost"></div>
 </header>
 
 <div class="wrap">
@@ -662,10 +933,10 @@
     </section>
 
     <aside class="card" id="secEval">
-      <div class="row" style="margin-bottom:10px">
+      <div id="evalFiltersHome"></div>
+      <div class="row" id="evalFilters" style="margin-bottom:10px">
         <div style="min-width:220px; flex:1">
-          <label for="evalScope">Sportart</label>
-          <select id="evalScope">
+<select id="evalScope">
             <option value="ALL">Alle Sportarten</option>
             <option value="RUN">Laufen</option>
             <option value="RR">Rennrad</option>
@@ -674,8 +945,7 @@
           </select>
         </div>
         <div style="min-width:220px; flex:1">
-          <label for="evalRangeWeeks">Zeitraum</label>
-          <select id="evalRangeWeeks">
+<select id="evalRangeWeeks">
             <option value="1">1 Monat</option>
             <option value="2">2 Monate</option>
             <option value="3">3 Monate</option>
@@ -1308,7 +1578,6 @@ function round(x, d=0) { const p = 10**d; return Math.round(x*p)/p; }
 
       const actionsChildren = [
         el("button",{type:"button",text:"Bearbeiten",onclick:()=>openEdit(e.id)}),
-        el("button",{type:"button",text:"Vorlage",onclick:()=>openTemplate(e.id)}),
       ];
 
       // Schnell-Button „relevant“ nur für IV/Tempo/WK/Testlauf-Läufe
@@ -2707,6 +2976,21 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
         filtersHome.insertAdjacentElement("afterend", entriesFilters);
         entriesFilters.classList.add("filtersSticky");
       }
+
+    // v57: Auswertungs-Filter in den Header übernehmen (analog Einheiten), keine Duplikate
+    const headerEvalFilters = $("#headerEvalFilters");
+    const evalFiltersHome = $("#evalFiltersHome");
+    const evalFilters = $("#evalFilters");
+    if (headerEvalFilters && evalFiltersHome && evalFilters){
+      if (v === "eval"){
+        headerEvalFilters.appendChild(evalFilters);
+        evalFilters.classList.remove("filtersSticky");
+      } else {
+        evalFiltersHome.insertAdjacentElement("afterend", evalFilters);
+        evalFilters.classList.add("filtersSticky");
+      }
+    }
+
     }
 
 
@@ -2728,7 +3012,42 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
   $("#btnViewEval").addEventListener("click", () => setView("eval"));
   $("#btnClose").addEventListener("click", () => dlg.close());
   // v36: Header-Buttons umverdrahtet
-  $("#btnExportXlsx").addEventListener("click", () => { fileXlsx.click(); });
+  // v54: Header-Import komplett neu (Dateiauswahl + Import direkt)
+  const btnHeaderImport = $("#btnExportXlsx");
+  btnHeaderImport.addEventListener("click", () => {
+    try{
+      fileXlsx.value = "";
+      fileXlsx.click();
+    }catch(e){
+      console.error(e);
+      alert("Dateiauswahl konnte nicht geöffnet werden.");
+    }
+  });
+
+  // v54: Auto-Import nach Dateiauswahl (ohne Hidden-Button-Abhängigkeit)
+  fileXlsx.addEventListener("change", async () => {
+    const file = fileXlsx.files?.[0];
+    if(!file) return;
+
+    const oldText = btnHeaderImport.textContent;
+    btnHeaderImport.disabled = true;
+    btnHeaderImport.textContent = "Import läuft …";
+
+    try{
+      const res = await importXlsx(file);
+      // kurzer visueller Hinweis im Button, danach zurück
+      btnHeaderImport.textContent = "Import ✓";
+      setTimeout(() => { btnHeaderImport.textContent = oldText; }, 900);
+      fileXlsx.value = "";
+    }catch(e){
+      console.error(e);
+      btnHeaderImport.textContent = oldText;
+      alert("Import fehlgeschlagen: " + (e?.message || String(e)));
+    }finally{
+      btnHeaderImport.disabled = false;
+    }
+  });
+
   $("#btnExportJson").addEventListener("click", (e) => {
     e.preventDefault();
     const m=$("#exportMenu");
@@ -2818,11 +3137,6 @@ evalRangeWeeksEl.addEventListener("change", renderAll);
   });
 
   // v36: Auto-Import nach Dateiauswahl
-  fileXlsx.addEventListener("change", () => {
-    const f=fileXlsx.files?.[0];
-    if(f) $("#btnImport").click();
-  });
-
   // Import
   $("#btnImport").addEventListener("click", async () => {
     importMsg.textContent="";

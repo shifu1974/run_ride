@@ -902,6 +902,21 @@ canvas{
   margin-right:auto;
 }
 
+
+/* v90 iPhone Safari: Grid-Items dürfen wegen großer Canvas-Intrinsic-Breite NICHT den Grid-Container sprengen */
+.grid{ justify-items: stretch; }
+.grid > *{ min-width: 0; }
+#secEval{ min-width: 0; }
+#secEval *{ min-width: 0; }
+#secEval canvas{ width: 100% !important; max-width: 100% !important; display:block; }
+/* iOS Safari (WebKit) – zusätzliche Absicherung */
+@supports (-webkit-touch-callout: none){
+  .grid{ justify-items: stretch; }
+  .grid > *{ min-width: 0; }
+  #secEval{ min-width: 0; }
+  #secEval canvas{ width: 100% !important; max-width: 100% !important; }
+}
+
 </style>
 </head>
 

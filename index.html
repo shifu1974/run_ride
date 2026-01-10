@@ -4,7 +4,7 @@
 <html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Run &amp; Ride v89</title>
+  <title>Run &amp; Ride v91</title>
 
   <!-- XLSX (muss im selben Ordner liegen) -->
   <script src="./xlsx.full.min.js"></script>
@@ -917,6 +917,17 @@ canvas{
   #secEval canvas{ width: 100% !important; max-width: 100% !important; }
 }
 
+
+/* v91: Header wirklich fixieren (iOS Safari robust) + dynamischer Abstand */
+header{
+  position: fixed !important;
+  top: 0; left: 0; right: 0;
+  width: 100%;
+}
+body{
+  padding-top: var(--headerH, 0px);
+}
+
 </style>
 </head>
 
@@ -924,7 +935,7 @@ canvas{
 <header>
   <div class="headerGrid headerGrid-v23">
     <div class="headerLeft headerLeft-v23">
-      <h1>Run &amp; Ride v89</h1>
+      <h1>Run &amp; Ride v91</h1>
       <div class="navStack">
         <button class="ghost btnFinal" id="btnViewEntries">Einheiten</button>
         <button class="ghost btnFinal" id="btnViewEval">Auswertung</button>
@@ -3245,5 +3256,23 @@ evalRangeWeeksEl.addEventListener("change", renderAll);
 
 </script>
 
+
+
+<script>
+/* v91: Reserve space for fixed header (no guessing) */
+(function(){
+  function syncHeaderSpace(){
+    var h = document.querySelector('header');
+    if(!h) return;
+    var px = h.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--headerH', px + 'px');
+  }
+  window.addEventListener('load', syncHeaderSpace, {passive:true});
+  window.addEventListener('resize', syncHeaderSpace, {passive:true});
+  // also after fonts/layout settle
+  setTimeout(syncHeaderSpace, 50);
+  setTimeout(syncHeaderSpace, 250);
+})();
+</script>
 
 </body></html>

@@ -4,7 +4,7 @@
 <html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Run &amp; Ride v87</title>
+  <title>Run &amp; Ride v89</title>
 
   <!-- XLSX (muss im selben Ordner liegen) -->
   <script src="./xlsx.full.min.js"></script>
@@ -851,6 +851,57 @@ header #entriesFilters select{
   background: rgba(38,52,78,.06) !important;
 }
 
+
+/* v89: iPhone-Layout strukturell sauber – einheitliches horizontales Raster (Header + Inhalte + Charts) */
+:root{
+  --pageMax: 1280px;
+  --pagePad: 16px;
+}
+
+/* iOS/Safari: keine horizontalen Überläufe, konsistente Box-Sizing */
+*, *::before, *::after{ box-sizing: border-box; }
+html, body{ width:100%; max-width:100%; overflow-x:hidden; }
+
+/* Header volle Breite; Inhalt im gleichen Raster wie .wrap */
+header{
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+.headerGrid-v23,
+#headerEntriesFilters,
+#headerEvalFilters{
+  width:100%;
+  max-width: var(--pageMax);
+  margin-left:auto;
+  margin-right:auto;
+  padding-left: var(--pagePad);
+  padding-right: var(--pagePad);
+}
+
+/* Main wrapper: gleiche Seiten-Paddings wie Header */
+.wrap{
+  max-width: none !important;
+  margin: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+.wrap > .grid{
+  width:100%;
+  max-width: var(--pageMax);
+  margin-left:auto;
+  margin-right:auto;
+  padding-left: var(--pagePad);
+  padding-right: var(--pagePad);
+}
+
+/* Charts: block-level, zentriert, kein "rechts kleben" */
+canvas{
+  display:block;
+  max-width:100%;
+  margin-left:auto;
+  margin-right:auto;
+}
+
 </style>
 </head>
 
@@ -858,7 +909,7 @@ header #entriesFilters select{
 <header>
   <div class="headerGrid headerGrid-v23">
     <div class="headerLeft headerLeft-v23">
-      <h1>Run &amp; Ride v87</h1>
+      <h1>Run &amp; Ride v89</h1>
       <div class="navStack">
         <button class="ghost btnFinal" id="btnViewEntries">Einheiten</button>
         <button class="ghost btnFinal" id="btnViewEval">Auswertung</button>

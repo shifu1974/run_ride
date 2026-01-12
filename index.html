@@ -4,7 +4,7 @@
 <html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Run &amp; Ride v91</title>
+  <title>Run &amp; Ride v104</title>
 
   <!-- XLSX (muss im selben Ordner liegen) -->
   <script src="./xlsx.full.min.js"></script>
@@ -101,6 +101,17 @@
     }
     input:focus, select:focus, textarea:focus{border-color:rgba(106,166,255,.65)}
     textarea{min-height:86px; resize:vertical}
+
+    /* Nummern-Spinner ausblenden (iOS/Chrome) */
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button{
+      -webkit-appearance:none;
+      margin:0;
+    }
+    input[type=number]{
+      -moz-appearance:textfield;
+      appearance:textfield;
+    }
 
     .filters{display:grid; grid-template-columns: 1fr 1fr 1.6fr; gap:8px; align-items:end;}
 
@@ -928,6 +939,53 @@ body{
   padding-top: var(--headerH, 0px);
 }
 
+
+/* v93: Tabellen (Wochen/Monat) ruhiger & besser lesbar */
+table{
+  border-collapse: separate;
+  border-spacing: 0;
+}
+table thead th{
+  background: rgba(255,255,255,.55);
+  color: rgba(38,52,78,.78);
+  border-bottom: 1px solid rgba(38,52,78,.10);
+}
+table tbody td{
+  color: rgba(38,52,78,.72);
+  border-bottom: 1px solid rgba(38,52,78,.08);
+}
+table tbody tr:nth-child(odd){ background: rgba(255,255,255,.28); }
+table tbody tr:nth-child(even){ background: rgba(255,255,255,.18); }
+@media (max-width: 520px){
+  table thead th, table tbody td{ padding: 10px 10px; font-size: 14px; }
+}
+
+
+/* v98: Neue Einheit – EL/AL km/h Eingaben entfernt (km bleiben; zählen als GA1; Minuten aus Basis-Speed geschätzt) */
+header{
+  padding-bottom: 12px !important; /* vorher deutlich größer */
+}
+@media (max-width: 820px){
+  header{
+    padding-bottom: 10px !important;
+  }
+}
+/* Falls leere Header-Hosts/Wrapper unten "Luft" erzeugen */
+.headerEntriesFiltersHost:empty,
+.headerAnalysisFiltersHost:empty,
+.headerEntriesExtraHost:empty,
+.headerAnalysisExtraHost:empty{
+  display:none !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+
+  /* v101: "Als Vorlage verwenden" wird nicht mehr benötigt */
+  #btnUseTemplate{display:none !important;}
+
+/* v105: Intervallangaben in einer ganzen Zeile */
+.iv-row { grid-column: 1 / -1; }
+
 </style>
 </head>
 
@@ -935,7 +993,7 @@ body{
 <header>
   <div class="headerGrid headerGrid-v23">
     <div class="headerLeft headerLeft-v23">
-      <h1>Run &amp; Ride v91</h1>
+    <h1>Run &amp; Ride v104</h1>
       <div class="navStack">
         <button class="ghost btnFinal" id="btnViewEntries">Einheiten</button>
         <button class="ghost btnFinal" id="btnViewEval">Auswertung</button>
@@ -1149,7 +1207,7 @@ body{
         </div>
 
         <div id="wrapType">
-          <label for="f_type">Trainingsart (nur Lauf)</label>
+          <label for="f_type">Trainingsart</label>
           <select id="f_type">
             <option value="GA1">GA1</option>
             <option value="GA2">GA2</option>
@@ -1168,32 +1226,20 @@ body{
           <input id="f_name" placeholder="z.B. Vogesen, Parkrunde …">
         </div>
 
-        <div class="span2">
-          <label>&nbsp;</label>
-          <div style="display:flex; align-items:center; gap:10px; padding:9px 10px; border:1px solid rgba(255,255,255,.12); border-radius:12px; background:rgba(255,255,255,.03)">
-            <input id="f_perf" type="checkbox" style="width:auto; transform:scale(1.15)">
-            <div>
-              <div style="font-weight:900">Leistungsrelevant</div>
-              <div class="hint" style="margin:2px 0 0">
-                Wird automatisch gesetzt bei IV/Tempo/Wettkampf/Testlauf (du kannst es ausschalten)
-              </div>
-            </div>
-          </div>
-          <input type="hidden" id="f_perf_locked">
-        </div>
+        
 
         <div>
-          <label for="f_dist">Strecke_km (Kern)</label>
+          <label for="f_dist">Strecke (Kern)</label>
           <input id="f_dist" type="number" step="0.01" min="0" placeholder="km">
         </div>
 
         <div>
-          <label for="f_dur">Dauer_min (Kern)</label>
+          <label for="f_dur">Dauer (Kern)</label>
           <input id="f_dur" type="number" step="0.1" min="0" placeholder="min">
         </div>
 
         <div>
-          <label for="f_speed">Geschwindigkeit_kmh (Kern)</label>
+          <label for="f_speed">Speed (Kern)</label>
           <input id="f_speed" type="number" step="0.01" min="0" placeholder="km/h">
         </div>
 
@@ -1210,18 +1256,18 @@ body{
             <div style="flex:1"><input id="f_iv_pause_s" type="number" step="1" min="0" placeholder="IV_Pause_s"></div>
             <div style="flex:1"><input id="f_iv_pause_type" placeholder="IV_Pause_Art (z.B. Gehen/Traben)"></div>
           </div>
-          <div class="hint">Voreinstellung Pause_Art: „Traben“ (änderbar). Kernstrecke = IV_Laenge_m × IV_Anzahl (wenn km fehlt).</div>
-        </div>
+</div>
 
         <div class="span2" id="wrapELAL">
           <label>EL/AL (zählen als GA1)</label>
           <div class="row">
             <div style="flex:1"><input id="f_el_km" type="number" step="0.01" min="0" placeholder="EL_km"></div>
-            <div style="flex:1"><input id="f_el_kmh" type="number" step="0.01" min="0" placeholder="EL_kmh"></div>
             <div style="flex:1"><input id="f_al_km" type="number" step="0.01" min="0" placeholder="AL_km"></div>
-            <div style="flex:1"><input id="f_al_kmh" type="number" step="0.01" min="0" placeholder="AL_kmh"></div>
           </div>
-        </div>
+          <!-- EL/AL_kmh Eingabe entfernt. Hidden-Felder bleiben für Abwärtskompatibilität (alte Imports/Edits). -->
+          <input id="f_el_kmh" type="hidden" />
+          <input id="f_al_kmh" type="hidden" />
+</div>
 
         <div>
           <label for="f_partner">Partner</label>
@@ -1229,9 +1275,28 @@ body{
         </div>
 
         <div>
-          <label for="f_surface">Untergrund (frei)</label>
+          <label for="f_surface">Untergrund</label>
           <input id="f_surface" placeholder="z.B. Waldboden, Wald &amp; Forstweg, Asphalt …">
-          <div class="hint">Voreinstellung: Lauf=Waldboden · MTB=Forstwege · Rennrad=Asphalt (alles übersteuerbar).</div>
+</div>
+
+        <div>
+          <label for="f_weight">Gewicht_kg</label>
+          <input id="f_weight" type="number" step="0.1" min="0" placeholder="kg">
+</div>
+
+        <div>
+          <label for="f_rhr">Ruhepuls</label>
+          <input id="f_rhr" type="number" step="1" min="0" placeholder="bpm">
+        </div>
+
+        <div>
+          <label for="f_hf_avg">HF_avg</label>
+          <input id="f_hf_avg" type="number" step="1" min="0" placeholder="bpm">
+        </div>
+
+        <div>
+          <label for="f_hf_arr">HF_Ankunft</label>
+          <input id="f_hf_arr" type="number" step="1" min="0" placeholder="bpm">
         </div>
 
         <div>
@@ -1239,27 +1304,17 @@ body{
           <input id="f_hm" type="number" step="1" min="0" placeholder="Hm">
         </div>
 
-        <div>
-          <label for="f_weight">Gewicht_kg</label>
-          <input id="f_weight" type="number" step="0.1" min="0" placeholder="kg">
-          <div class="hint">Neuer Eintrag: datumstechnisch zuletzt bekanntes Gewicht wird vorgeschlagen.</div>
+<div class="span4">
+          <label>&nbsp;</label>
+          <div style="display:flex; align-items:center; gap:10px; padding:9px 10px; border:1px solid rgba(255,255,255,.12); border-radius:12px; background:rgba(255,255,255,.03)">
+            <input id="f_perf" type="checkbox" style="width:auto; transform:scale(1.15)">
+            <div>
+              <div style="font-weight:900">Leistungsrelevant</div>
+              <div class="hint" style="margin:2px 0 0"></div>
+            </div>
+          </div>
+          <input type="hidden" id="f_perf_locked">
         </div>
-
-        <div>
-          <label for="f_rhr">Ruhepuls_bpm</label>
-          <input id="f_rhr" type="number" step="1" min="0" placeholder="bpm">
-        </div>
-
-        <div>
-          <label for="f_hf_avg">HF_avg_bpm</label>
-          <input id="f_hf_avg" type="number" step="1" min="0" placeholder="bpm">
-        </div>
-
-        <div>
-          <label for="f_hf_arr">HF_Ankunft_bpm</label>
-          <input id="f_hf_arr" type="number" step="1" min="0" placeholder="bpm">
-        </div>
-
         <div class="span4">
           <label for="f_notes">Anmerkungen</label>
           <textarea id="f_notes" placeholder="Notizen …"></textarea>
@@ -1268,12 +1323,11 @@ body{
         <div class="span4">
           <div class="row">
             <button type="submit" class="primary" id="btnSave">Speichern</button>
-            <button type="button" id="btnUseTemplate">Als Vorlage verwenden</button>
+            <button type="button" id="btnUseTemplate" style="display:none">Als Vorlage verwenden</button>
             <span class="spacer"></span>
             <button type="button" class="danger" id="btnDelete">Löschen</button>
           </div>
-          <div class="hint">Nach dem Speichern werden die Filter automatisch auf „Alle“ zurückgesetzt.</div>
-        </div>
+</div>
       </div>
     </form>
   </div>
@@ -1435,8 +1489,21 @@ function round(x, d=0) { const p = 10**d; return Math.round(x*p)/p; }
   function computeELALMinutes(entry) {
     const elKm = num(entry.el_km), elKmh = num(entry.el_kmh);
     const alKm = num(entry.al_km), alKmh = num(entry.al_kmh);
-    entry._el_min = (elKm != null && elKmh != null && elKmh > 0) ? (elKm / elKmh) * 60 : 0;
-    entry._al_min = (alKm != null && alKmh != null && alKmh > 0) ? (alKm / alKmh) * 60 : 0;
+
+    // EL/AL km/h Eingabe ist entfernt. Für die Zeit-Anteile nutzen wir:
+    // 1) vorhandene Legacy-EL/AL-km/h (falls in alten Daten vorhanden)
+    // 2) sonst die Kern-Geschwindigkeit (speed_kmh) oder aus dist/dur abgeleitet
+    const coreKmh = (num(entry.speed_kmh) != null && num(entry.speed_kmh) > 0)
+      ? num(entry.speed_kmh)
+      : ((num(entry.dist_km) != null && num(entry.dur_min) != null && num(entry.dur_min) > 0)
+        ? (num(entry.dist_km) / num(entry.dur_min)) * 60
+        : null);
+
+    const usedElKmh = (elKmh != null && elKmh > 0) ? elKmh : coreKmh;
+    const usedAlKmh = (alKmh != null && alKmh > 0) ? alKmh : coreKmh;
+
+    entry._el_min = (elKm != null && elKm > 0 && usedElKmh != null && usedElKmh > 0) ? (elKm / usedElKmh) * 60 : 0;
+    entry._al_min = (alKm != null && alKm > 0 && usedAlKmh != null && usedAlKmh > 0) ? (alKm / usedAlKmh) * 60 : 0;
     return entry;
   }
 
@@ -1755,7 +1822,7 @@ function round(x, d=0) { const p = 10**d; return Math.round(x*p)/p; }
 
   function clearForm() {
     f_id.value=""; f_date.value=toISODateUTC(new Date());
-    f_sport.value=SPORT.RUN; f_type.value="GA1";
+    f_sport.value=SPORT.RUN; f_type.value="LDL"; // v101: Default für Lauf
     [f_name,f_dist,f_dur,f_speed,f_ga2pct,f_iv_len,f_iv_cnt,f_iv_pause_s,
      f_el_km,f_el_kmh,f_al_km,f_al_kmh,f_partner,f_surface,f_hm,f_weight,
      f_rhr,f_hf_avg,f_hf_arr,f_notes].forEach(x=>x.value="");
@@ -1778,7 +1845,7 @@ function round(x, d=0) { const p = 10**d; return Math.round(x*p)/p; }
     const entry = enrich({ ...entry0 });
 
     f_id.value=entry.id||""; f_date.value=entry.date||toISODateUTC(new Date());
-    f_sport.value=entry.sport||SPORT.RUN; f_type.value=entry.type||"GA1";
+    f_sport.value=entry.sport||SPORT.RUN; f_type.value=entry.type||"LDL"; // v101: Default
     f_name.value=entry.name||"";
     f_dist.value=entry.dist_km ?? ""; f_dur.value=entry.dur_min ?? ""; f_speed.value=entry.speed_kmh ?? "";
     f_ga2pct.value=entry.ga2_pct ?? "";
@@ -1841,7 +1908,7 @@ function round(x, d=0) { const p = 10**d; return Math.round(x*p)/p; }
   function openNew() {
     newMode=true;
     clearForm();
-    dlgTitle.textContent="Neuer Eintrag";
+    dlgTitle.textContent="Neue Einheit";
     dlg.showModal();
   }
 
@@ -2139,10 +2206,10 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
     const innerH = h - pad*2 - labelH;
 
     // colors (wie vorher)
-    const runGA1 = "rgba(106,166,255,.65)";
-    const runGA2 = "rgba(106,166,255,.95)";
-    const bikeGA1 = "rgba(255,255,255,.20)";
-    const bikeGA2 = "rgba(255,255,255,.38)";
+    const runGA1 = "rgba(60,120,220,.80)";
+    const runGA2 = "rgba(60,120,220,1.0)";
+    const bikeGA1 = "rgba(78,140,120,.55)";
+    const bikeGA2 = "rgba(78,140,120,.85)";
 
     const series = keys.map(k=>{
       const run = sumGAForKey(k, keyLabelFn.keyFn, e=>e.sport===SPORT.RUN, allowedIds);
@@ -2162,7 +2229,7 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
 
     // axes
     ctx.lineWidth=1;
-    ctx.strokeStyle="rgba(255,255,255,.14)";
+    ctx.strokeStyle="rgba(38,52,78,.10)";
     ctx.beginPath();
     ctx.moveTo(pad, pad);
     ctx.lineTo(pad, pad+innerH);
@@ -2224,7 +2291,7 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
       return {x,y,val:ga2};
     });
 
-    ctx.strokeStyle="rgba(255,255,255,.58)";
+    ctx.strokeStyle="rgba(38,52,78,.55)";
     ctx.lineWidth=Math.max(2, Math.round(w/360));
     ctx.beginPath();
     for(let i=0;i<ga2Points.length;i++){
@@ -2241,7 +2308,7 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
     ctx.stroke();
 
     // labels bigger (x/y)
-    ctx.fillStyle="rgba(236,243,255,.82)";
+    ctx.fillStyle="rgba(38,52,78,.55)";
     ctx.font = `${chartFontPx(Math.max(12, Math.floor(w/70)))}px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
     ctx.textAlign="center";
     ctx.textBaseline="top";
@@ -2322,7 +2389,7 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
     const maxVal = minV + span*AXIS_HEADROOM;
 
     // axes
-    ctx.strokeStyle="rgba(255,255,255,.14)";
+    ctx.strokeStyle="rgba(38,52,78,.10)";
     ctx.lineWidth=1;
     ctx.beginPath();
     ctx.moveTo(pad, pad);
@@ -2337,7 +2404,7 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
     if(opts.lineIndices && opts.lineIndices.length>=2){
       const pts = opts.lineIndices.map(i=>({x:xAt(i), y:yAt(items[i].speed)}));
 
-      ctx.strokeStyle="rgba(255,255,255,.62)";
+      ctx.strokeStyle="rgba(38,52,78,.55)";
       ctx.lineWidth=Math.max(2, Math.round(w/360));
       ctx.beginPath();
       ctx.moveTo(pts[0].x, pts[0].y);
@@ -2360,7 +2427,7 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
       if(it.shape==="diamond"){
         // diamond
         const s = Math.max(5, Math.round(w/220));
-        ctx.fillStyle="rgba(255,255,255,.78)";
+        ctx.fillStyle="rgba(38,52,78,.65)";
         ctx.beginPath();
         ctx.moveTo(x, y-s);
         ctx.lineTo(x+s, y);
@@ -2379,7 +2446,7 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
     }
 
     // labels bigger
-    ctx.fillStyle="rgba(236,243,255,.82)";
+    ctx.fillStyle="rgba(38,52,78,.55)";
     ctx.font = `${chartFontPx(Math.max(12, Math.floor(w/70)))}px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
     ctx.textAlign="left";
     ctx.textBaseline="top";
@@ -2540,7 +2607,7 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
     const maxVal = minV + span*AXIS_HEADROOM; // etwas Luft nach oben (schlechtere Zeit)
 
     // axes
-    ctx.strokeStyle="rgba(255,255,255,.14)";
+    ctx.strokeStyle="rgba(38,52,78,.10)";
     ctx.lineWidth=1;
     ctx.beginPath();
     ctx.moveTo(pad, pad);
@@ -2556,7 +2623,7 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
     // line (only selected indices)
     if(opts.lineIndices && opts.lineIndices.length>=2){
       const pts = opts.lineIndices.map(i=>({x:xAt(i), y:yAt(items[i].t10)}));
-      ctx.strokeStyle="rgba(255,255,255,.62)";
+      ctx.strokeStyle="rgba(38,52,78,.55)";
       ctx.lineWidth=Math.max(2, Math.round(w/360));
       ctx.beginPath();
       ctx.moveTo(pts[0].x, pts[0].y);
@@ -2578,7 +2645,7 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
 
       if(it.shape==="diamond"){
         const s = Math.max(5, Math.round(w/220));
-        ctx.fillStyle="rgba(255,255,255,.78)";
+        ctx.fillStyle="rgba(38,52,78,.65)";
         ctx.beginPath();
         ctx.moveTo(x, y-s);
         ctx.lineTo(x+s, y);
@@ -2596,7 +2663,7 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
     }
 
     // labels (x)
-    ctx.fillStyle="rgba(236,243,255,.82)";
+    ctx.fillStyle="rgba(38,52,78,.55)";
     ctx.font = `${chartFontPx(Math.max(12, Math.floor(w/70)))}px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
     ctx.textAlign="left";
     ctx.textBaseline="top";
@@ -2693,9 +2760,9 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
     add("Anmerkungen","notes");
     add("Anmerkung","notes");
     add("Gewicht_kg","weight_kg");
-    add("Ruhepuls_bpm","rest_bpm");
-    add("HF_avg_bpm","hf_avg_bpm");
-    add("HF_Ankunft_bpm","hf_arr_bpm");
+    add("Ruhepuls","rest_bpm");
+    add("HF_avg","hf_avg_bpm");
+    add("HF_Ankunft","hf_arr_bpm");
     add("Höhenmeter","hm");
     add("Untergrund","surface");
 
@@ -2919,7 +2986,7 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
     "EL_km","EL_kmh","AL_km","AL_kmh",
     "GA2_%",
     "Name_Einheit","Partner","Anmerkungen",
-    "Gewicht_kg","Ruhepuls_bpm","HF_avg_bpm","HF_Ankunft_bpm",
+    "Gewicht_kg","Ruhepuls","HF_avg","HF_Ankunft",
     "Höhenmeter","Untergrund",
     "Leistungsrelevant"
   ];

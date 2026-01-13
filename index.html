@@ -4,7 +4,7 @@
 <html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Run &amp; Ride v104</title>
+  <title>Run &amp; Ride v106</title>
 
   <!-- XLSX (muss im selben Ordner liegen) -->
   <script src="./xlsx.full.min.js"></script>
@@ -982,10 +982,6 @@ header{
 
   /* v101: "Als Vorlage verwenden" wird nicht mehr benötigt */
   #btnUseTemplate{display:none !important;}
-
-/* v105: Intervallangaben in einer ganzen Zeile */
-.iv-row { grid-column: 1 / -1; }
-
 </style>
 </head>
 
@@ -993,7 +989,7 @@ header{
 <header>
   <div class="headerGrid headerGrid-v23">
     <div class="headerLeft headerLeft-v23">
-    <h1>Run &amp; Ride v104</h1>
+    <h1>Run &amp; Ride v106</h1>
       <div class="navStack">
         <button class="ghost btnFinal" id="btnViewEntries">Einheiten</button>
         <button class="ghost btnFinal" id="btnViewEval">Auswertung</button>
@@ -3074,7 +3070,19 @@ const canvasWeek=$("#chartWeek"); const ctxW=canvasWeek.getContext("2d");
     const blob = new Blob([ab], { type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
 
     const fn = `run_ride_${toISODateUTC(new Date())}.xlsx`;
-    await saveWithPickerOrDownload(blob, fn);
+
+    // iOS/Mobile: offer Share Sheet so the user can save to Files (instead of only downloading)
+    try {
+      const file = new File([blob], fn, { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: fn });
+        return;
+      }
+    } catch (_) {
+      // ignore (File / share not supported)
+    }
+
+        await saveWithPickerOrDownload(blob, fn);
   }
 
   // -------- Render --------
